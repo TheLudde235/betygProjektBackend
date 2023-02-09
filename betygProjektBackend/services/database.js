@@ -1,37 +1,40 @@
-import {v4 as uuid} from 'uuid';
-import jsonDB from './jsonDB.js';
-const db = new jsonDB();
+import { Pool } from 'node-postgres';
+const pool = new Pool();
 
 export const prefixes = {
   user: '61dc4184'
 }
 
-
 export default class Database {
-  set(key, value, prefix = '') {
-    return db.set(prefix + key + uuid(), value);
+  async query(text, params) {
+    const start = Date.now()
+    const res = await pool.query(text, params)
+    const duration = Date.now() - start
+    console.log('executed query', { text, duration, rows: res.rowCount })
+    return res
   }
-  get(key, prefix = '') {
-    return db.get(prefix + key);
-  }
-  list(prefix = '') {
-    return db.list(prefix);
-  }
-  delete(key) {
-    return db.delete(key);
-  }
+ 
+  async getClient() {
+    const client = await pool.connect()
+    const query = client.query
+    const release = client.release
 
-  async getByPrefix(prefix) {
-    if (!prefix) return;
-    const out = [];
-    const matches = await this.list(prefix);
-    for (const match of matches) {
-      out.push(await this.get(match));
-    };
-    return out;
-  }
+    const timeout = setTimeout(() => {
+      console.error('A client has been checked out for more than 5 seconds!')
+      console.error(`The last executed query on this client was: ${client.lastQuery}`)
+    }, 5000)
+    
+    client.query = (...args) => {
+      client.lastQuery = args
+      return query.apply(client, args)
+    }
 
-  async has(key, prefix = '') {
-    return ((await this.getByPrefix(prefix + key)).length > 0)
+    client.release = () => {
+      clearTimeout(timeout)
+      client.query = query
+      client.release = release
+      return release.apply(client)
+    }
+    return client
   }
 }
