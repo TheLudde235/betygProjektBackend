@@ -12,7 +12,7 @@ export const ILoginUser = Joi.object({
     .required(),
 });
 
-export const IRegisterRegisterUser = Joi.object({
+export const IRegisterUser = Joi.object({
   username: Joi.string()
     .alphanum()
     .min(3)
@@ -28,7 +28,7 @@ export const IRegisterRegisterUser = Joi.object({
     .required(),
 })
 
-export const IWorker = Joi.object({
+export const IRegisterWorker = Joi.object({
   name: Joi.string()
     .alphanum()
     .required(),

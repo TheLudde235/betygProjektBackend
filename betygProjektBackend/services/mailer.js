@@ -28,11 +28,3 @@ export function sendMail({subject, to, text, html}) {
     else console.log(info)
   });
 }
-
-transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-        console.error(error);
-    } else {
-        console.log('Email sent: ' + info.response);
-    }
-});
