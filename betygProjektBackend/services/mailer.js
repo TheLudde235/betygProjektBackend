@@ -5,17 +5,18 @@ dotenv.config()
 
 export function sendMail({subject, to, text, html}) {
   const transporter = nodemailer.createTransport({
-    host: "smtp-mail.outlook.com",
+    service: 'gmail',
+    host: 'smtp.gmail.com',
     secureConnection: true,
     port: 587,
     auth: {
-      user: process.env.EMAIL_USERNAME,
-      pass: process.env.EMAIL_PASSWORD
+      user: process.env.GMAIL_USERNAME,
+      pass: process.env.APP_PASSWORD
     },
   });
   
   const mailOptions = {
-    from: process.env.EMAIL_USERNAME,
+    from: process.env.GMAIL_USERNAME,
     to,
     subject,
     text,

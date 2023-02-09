@@ -3,7 +3,8 @@ import jsonDB from './jsonDB.js';
 const db = new jsonDB();
 
 export const prefixes = {
-  user: '61dc4184'
+  user: '61dc4184',
+  worker: 'd418c46f'
 }
 
 

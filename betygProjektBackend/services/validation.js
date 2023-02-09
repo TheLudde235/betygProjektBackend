@@ -1,6 +1,6 @@
 import Joi from 'joi';
 
-export const IUser = Joi.object({
+export const IRegisterUser = Joi.object({
   username: Joi.string()
     .alphanum()
     .min(3)
@@ -16,12 +16,15 @@ export const IUser = Joi.object({
     .required(),
 })
 
-export const IWorker = Joi.object({
-  name: Joi.string()
-    .alphanum()
-    .required(),
-
+export const IRegisterWorker = Joi.object({
   email: Joi.string()
     .email()
-    .required()
+    .required(),
+
+  name: Joi.object({
+    first: Joi.string().required(),
+    last: Joi.string().required()
+  }).required(),
+
+  phone: Joi.string()
 })

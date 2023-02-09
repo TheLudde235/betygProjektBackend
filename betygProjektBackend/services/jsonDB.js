@@ -1,8 +1,10 @@
 import fs from 'fs';
 export default class jsonDB {
   #jsonData = '';
-  #path = './database/database.json';
-
+  #path; 
+  constructor(path = './database/database.json') {
+    this.#path = path;
+  }
   #updateData() {
     this.#jsonData = fs.readFileSync(this.#path);
   }
