@@ -7,7 +7,7 @@ import bcrypt from 'bcryptjs';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import { IUser } from './services/validation.js';
-
+import { sendMail } from './services/mailer.js';
 const jwtSecret = 'nyckelbrädakatt';
 const salt = 10;
 const db = new Database();
@@ -47,6 +47,6 @@ app.post('/register', async (req, res) => {
 });
 
 
-
+// sendMail({subject: 'Test', to: 'ludde.lagerstrom@outlook.com', html: '<h1>Test!</h1>'})
 
 // (await db.list(prefixes.user)).forEach(async match => {await db.delete(match)})
