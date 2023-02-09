@@ -2,7 +2,8 @@ import { Pool } from 'node-postgres';
 const pool = new Pool();
 
 export const prefixes = {
-  user: '61dc4184'
+  user: '61dc4184',
+  worker: 'd418c46f'
 }
 
 export default class Database {

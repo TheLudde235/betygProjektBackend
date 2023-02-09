@@ -12,7 +12,7 @@ export const ILoginUser = Joi.object({
     .required(),
 });
 
-export const IRegisterUser = Joi.object({
+export const IRegisterRegisterUser = Joi.object({
   username: Joi.string()
     .alphanum()
     .min(3)
@@ -26,8 +26,7 @@ export const IRegisterUser = Joi.object({
   email: Joi.string()
     .email()
     .required(),
-});
-
+})
 
 export const IWorker = Joi.object({
   name: Joi.string()
@@ -36,5 +35,12 @@ export const IWorker = Joi.object({
 
   email: Joi.string()
     .email()
-    .required()
-});
+    .required(),
+
+  name: Joi.object({
+    first: Joi.string().required(),
+    last: Joi.string().required()
+  }).required(),
+
+  phone: Joi.string()
+})
