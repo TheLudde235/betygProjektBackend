@@ -6,13 +6,8 @@ dotenv.config();
 const client = new pg.Client({
   connectionString: process.env.DATABASE_URL,
   application_name: '$ fullstack_taxami',
-  port: 3000
+  port: process.env.PORT
 });
-
-export const prefixes = {
-  user: '61dc4184',
-  worker: 'd418c46f'
-};
 
 export default class Database {
   async query(text, params) {

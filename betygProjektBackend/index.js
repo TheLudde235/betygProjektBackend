@@ -1,7 +1,9 @@
 import { ILoginUser, IRegisterUser, IRegisterWorker } from './services/validation.js';
-import Database, { prefixes } from './services/database.js';
+import { atob } from './services/base64.js';
+import Database from './services/database.js';
 import { cookieOptions } from './services/cookie.js';
 import { StatusCodes } from 'http-status-codes';
+import { adminAuth } from './middleware/auth.js';
 import { sendMail } from './services/mailer.js';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
@@ -19,8 +21,8 @@ const db = new Database();
 const app = express();
 const cockDB = await db.getClient();
 
-app.listen(3000, () => {
-  console.log("STARTING SERVER", 3000);
+app.listen(process.env.PORT, () => {
+  console.log("STARTING SERVER", process.env.PORT);
 });
 
 app.use(cookieParser(process.env.COOKIE_SECRET));
@@ -31,28 +33,40 @@ app.use(cors({
   credentials: true
 }));
 
+app.get('/', adminAuth ,async (req, res) => {
+  const rows = (await cockDB.query('show tables')).rows;
+  const obj = {};
+  for (const row of rows) {
+    obj[row.table_name] = (await cockDB.query('select * from ' + row.table_name)).rows;
+  }
+  res.json(obj);
+});
+
+app.get('/myEstates',adminAuth, async (req, res) => {
+  const user = JSON.parse(atob(req.headers.authorization.split(' ')[1].split('.')[1]));
+  const adminID = (await cockDB.query('select adminUUID from administrators where username=$1', [user.username])).rows[0].adminuuid;
+  res.json(await cockDB.query('select * from estates where adminuuid=$1', [adminID]).rows)
+});
+
 app.post('/register', async (req, res) => {
   try {
-    await IRegisterRegisterUser.validateAsync(req.body);
+    await IRegisterUser.validateAsync(req.body);
   } catch (err) {
     res.status(StatusCodes.BAD_REQUEST);
     return res.json({msg: err.message});
   }
 
-  const {username, password, email} = req.body;
+  const { username, password, email} = req.body;
 
-  if (await db.has(username.trim(), prefixes.user)) {
+  try {
+    await db.query('insert into administrators (username, email, password) values($1, $2, $3)', [username.trim(), email, await bcrypt.hash(password, salt)]);  
+    res.cookie('token', jwt.sign({username: username.trim(), admin: true}, jwtSecret), cookieOptions);
+    res.status(StatusCodes.CREATED);
+    res.json({msg: 'Created Succesfully'});
+  } catch (err) {
     res.status(StatusCodes.BAD_REQUEST);
-    res.status(StatusCodes.BAD_REQUEST);
-    return res.json({msg: 'Username is taken'});
-  } 
-
-  await db.set(username.trim(), {username: username.trim(), email, password: await bcrypt.hash(password, salt), estates: [], contacts: []}, prefixes.user);
-  
-  res.cookie('token', jwt.sign({username: username.trim()}, jwtSecret), cookieOptions);
-  res.status(StatusCodes.CREATED);
-  res.status(StatusCodes.ACCEPTED);
-  res.json({msg: 'Created Succesfully'});
+    res.json({msg: err.message});
+  }
 });
 
 app.post('/login', async (req, res) => {
@@ -64,20 +78,28 @@ app.post('/login', async (req, res) => {
   }
 
   const {username, password} = req.body;
-
-  if (!await db.has(username.trim(), prefixes.user)) {
-    res.status(StatusCodes.UNAUTHORIZED);
-    return res.json({msg: 'bad username or password'});
-  }
-
-  const user = (await db.getByPrefix(prefixes.user + username))[0];
-
-  if (!await bcrypt.compare(password, user.password)) {
-    res.status(StatusCodes.UNAUTHORIZED);
-    return res.json({msg: 'bad username or password'});
+  try {
+    const pw = (await cockDB.query('select password from administrators where username=$1', [username])).rows[0].password;
+    if (!await bcrypt.compare(password, pw)) {
+      throw Error('bad username or password');
+    }
+    res.setHeader('token', jwt.sign({username, admin: true}, jwtSecret));
+    res.status(StatusCodes.OK).json({msg: 'logged in'});
+  } catch(err) {
+      res.status(StatusCodes.UNAUTHORIZED);
+      return res.json({msg: 'bad username or password'});
   }
 });
 
+app.post('/registerEstate', adminAuth,async (req, res) => {
+  console.log('this is happening!!');
+});
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
 app.get('/alreadyRegistered', async (req, res) => {
   res.json({msg: (await db.has(req.query.email, prefixes.worker))});
 });
@@ -106,5 +128,3 @@ app.post(`/registerWorker`, async (req, res) => {
   res.cookie('token', jwt.sign({email}, jwtSecret), cookieOptions);
   res.json({msg: 'Successfully Registered'});
 });
-
-console.log((await cockDB.query('SELECT message FROM messages')).rows);
