@@ -32,11 +32,9 @@ export const IRegisterUser = Joi.object({
 
 export const IRegisterWorker = Joi.object({
   firstname: Joi.string()
-    .alphanum()
     .required(),
 
   lastname: Joi.string()
-    .alphanum()
     .required(),
 
   email: Joi.string()
@@ -44,12 +42,14 @@ export const IRegisterWorker = Joi.object({
     .required(),
 
   skills: Joi.string()
-    .required(),
+    .allow(null, ''),
   
   image: Joi.string()
+    .allow(null, '')
     .uri(),
 
   phone: Joi.string()
+    .required()
 });
 
 // Estate

@@ -131,9 +131,33 @@ app.post(`/registerWorker`, async (req, res) => {
     return res.json({msg: err.message});
   }
 
-  const { email, firstname, lastname, phone, skills } = req.body;
+  const { email, firstname, lastname, phone } = req.body;
+  const skills = req.body.skills ?? '';
+  const image = req.body.image ?? '';
 
-  res.status(StatusCodes.CREATED);
+  try {
+    const uuid = uuidV4();
+    sendMail({
+      to: email,
+      subject: 'Confirm your email',
+      html: `
+      <a href="http://localhost:3000/confirmMail/${uuid}">Click Here!</a>
+      `
+    });
+    await cockDB.query('insert into tempworkers(email, firstname, lastname, phone, skills, image, confirmationuuid) values ($1, $2, $3, $4, $5, $6, $7)', [email, firstname, lastname, phone, skills, image, uuid]);
+  } catch (err) {
+    return res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
+  }
+
+  res.status(StatusCodes.OK);
   res.cookie('token', jwt.sign({email, admin: false}, jwtSecret), cookieOptions);
-  return res.json({msg: 'Successfully Registered'});
+  return res.json({msg: 'Check email to confirm'});
+});
+
+app.get('/confirmMail/:confirmationuuid', async (req, res) => {
+  const worker = (await (await cockDB.query('select * from tempworkers where confirmationuuid=$1', [req.params.confirmationuuid])).rows[0]);
+  res.json({
+    uuid: req.params.confirmationuuid,
+    test: (await cockDB.query('delete from tempworkers where confirmationuuid=$1', [req.params.confirmationuuid])).rows
+  });
 });
