@@ -1,5 +1,7 @@
 import Joi from 'joi';
 
+// Users
+
 export const ILoginUser = Joi.object({
   username: Joi.string()
     .alphanum()
@@ -26,10 +28,14 @@ export const IRegisterUser = Joi.object({
   email: Joi.string()
     .email()
     .required(),
-})
+});
 
 export const IRegisterWorker = Joi.object({
-  name: Joi.string()
+  firstname: Joi.string()
+    .alphanum()
+    .required(),
+
+  lastname: Joi.string()
     .alphanum()
     .required(),
 
@@ -37,10 +43,24 @@ export const IRegisterWorker = Joi.object({
     .email()
     .required(),
 
-  name: Joi.object({
-    first: Joi.string().required(),
-    last: Joi.string().required()
-  }).required(),
+  skills: Joi.string()
+    .required(),
+  
+  image: Joi.string()
+    .uri(),
 
   phone: Joi.string()
-})
+});
+
+// Estate
+
+export const IEstate = Joi.object({
+  city: Joi.string()
+    .required(),
+  
+  street: Joi.string()
+    .required(),
+  
+  streetnumber: Joi.string()
+    .required(),
+});

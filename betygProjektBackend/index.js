@@ -1,7 +1,7 @@
-import { ILoginUser, IRegisterUser, IRegisterWorker } from './services/validation.js';
-import { atob } from './services/base64.js';
+import { ILoginUser, IRegisterUser, IRegisterWorker, IEstate } from './services/validation.js';
+import { v4 as uuidV4 } from 'uuid';
 import Database from './services/database.js';
-import { cookieOptions } from './services/cookie.js';
+import { cookieOptions } from './helpers/cookie.js';
 import { StatusCodes } from 'http-status-codes';
 import { adminAuth } from './middleware/auth.js';
 import { sendMail } from './services/mailer.js';
@@ -12,6 +12,7 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import { getTokenData } from './helpers/token.js';
 
 dotenv.config();
 
@@ -39,13 +40,13 @@ app.get('/', adminAuth ,async (req, res) => {
   for (const row of rows) {
     obj[row.table_name] = (await cockDB.query('select * from ' + row.table_name)).rows;
   }
-  res.json(obj);
+  return res.json(obj);
 });
 
 app.get('/myEstates',adminAuth, async (req, res) => {
-  const user = JSON.parse(atob(req.headers.authorization.split(' ')[1].split('.')[1]));
-  const adminID = (await cockDB.query('select adminUUID from administrators where username=$1', [user.username])).rows[0].adminuuid;
-  res.json(await cockDB.query('select * from estates where adminuuid=$1', [adminID]).rows)
+  const user = getTokenData(req);
+  const adminID = (await cockDB.query('select adminuuid from administrators where username=$1', [user.username])).rows[0].adminuuid;
+  return res.json((await cockDB.query('select * from estates where adminuuid=$1', [adminID])).rows);
 });
 
 app.post('/register', async (req, res) => {
@@ -59,13 +60,14 @@ app.post('/register', async (req, res) => {
   const { username, password, email} = req.body;
 
   try {
-    await db.query('insert into administrators (username, email, password) values($1, $2, $3)', [username.trim(), email, await bcrypt.hash(password, salt)]);  
-    res.cookie('token', jwt.sign({username: username.trim(), admin: true}, jwtSecret), cookieOptions);
+    const uuid = uuidV4();
+    await db.query('insert into administrators (adminuuid, username, email, password) values($1, $2, $3, $4)', [uuid, username.trim(), email, await bcrypt.hash(password, salt)]);  
+    res.cookie('token', jwt.sign({username: username.trim(), admin: uuid}, jwtSecret, {expiresIn: '1h'}), cookieOptions);
     res.status(StatusCodes.CREATED);
-    res.json({msg: 'Created Succesfully'});
+    return res.json({msg: 'Created Succesfully'});
   } catch (err) {
     res.status(StatusCodes.BAD_REQUEST);
-    res.json({msg: err.message});
+    return res.json({msg: err.message});
   }
 });
 
@@ -78,30 +80,47 @@ app.post('/login', async (req, res) => {
   }
 
   const {username, password} = req.body;
+  
   try {
-    const pw = (await cockDB.query('select password from administrators where username=$1', [username])).rows[0].password;
-    if (!await bcrypt.compare(password, pw)) {
+    const user = (await cockDB.query('select password, adminuuid from administrators where username=$1', [username])).rows[0];
+    if (!await bcrypt.compare(password, user.password)) {
       throw Error('bad username or password');
     }
-    res.setHeader('token', jwt.sign({username, admin: true}, jwtSecret));
-    res.status(StatusCodes.OK).json({msg: 'logged in'});
+    res.setHeader('token', jwt.sign({username, admin: user.adminuuid}, jwtSecret, {expiresIn: '1h'}));
+    return res.status(StatusCodes.OK).json({msg: 'logged in', token: jwt.sign({username, admin: user.adminuuid}, jwtSecret, {expiresIn: '1h'})});
   } catch(err) {
-      res.status(StatusCodes.UNAUTHORIZED);
-      return res.json({msg: 'bad username or password'});
+    res.status(StatusCodes.UNAUTHORIZED);
+    return res.json({msg: 'bad username or password'});
   }
 });
 
-app.post('/registerEstate', adminAuth,async (req, res) => {
-  console.log('this is happening!!');
+app.post('/registerEstate', adminAuth, async (req, res) => {
+  try {
+    await IEstate.validateAsync(req.body);
+  } catch (err) {
+    return res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
+  }
+
+  const estateuuid = uuidV4();
+  
+  try {
+    const {city, street, streetnumber} = req.body;
+    const { adminuuid }  = (await cockDB.query('select adminuuid from administrators where username=$1', [getTokenData(req).username])).rows[0];
+    await cockDB.query('insert into estates (estateuuid, adminuuid, city, street, streetnumber) values ($1, $2, $3, $4, $5)', [estateuuid, adminuuid, city, street, streetnumber]);
+  } catch (err) {
+    return res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
+  }
+
+  return res.status(StatusCodes.CREATED).json({msg: 'Created successfully', id: estateuuid});
 });
-
-
 
 
 
 ////////////////////////////////////////////////////////////////////////////////
+
+
 app.get('/alreadyRegistered', async (req, res) => {
-  res.json({msg: (await db.has(req.query.email, prefixes.worker))});
+  return res.json({msg: (await cockDB.query('select * from workers where email=$1 or phone=$2', [req.query.email, req.query.phone])).rowCount > 1});
 });
 
 app.post(`/registerWorker`, async (req, res) => {
@@ -111,20 +130,10 @@ app.post(`/registerWorker`, async (req, res) => {
     res.status(StatusCodes.BAD_REQUEST);
     return res.json({msg: err.message});
   }
-  
-  res.cookie('token', jwt.sign({username: username.trim()}, jwtSecret), cookieOptions);
-  res.status(StatusCodes.ACCEPTED);
-  res.json({msg: 'Sucessfully Logged In'});
-  
-  if (await db.has(req.body.email, prefixes.worker)) {
-    res.status(StatusCodes.BAD_REQUEST);
-    return res.json({msg: 'user already exists'});
-  }
 
-  const { email, name, phone } = req.body;
+  const { email, firstname, lastname, phone, skills } = req.body;
 
-  await db.set(email, {name, phone}, prefixes.worker);
   res.status(StatusCodes.CREATED);
-  res.cookie('token', jwt.sign({email}, jwtSecret), cookieOptions);
-  res.json({msg: 'Successfully Registered'});
+  res.cookie('token', jwt.sign({email, admin: false}, jwtSecret), cookieOptions);
+  return res.json({msg: 'Successfully Registered'});
 });
