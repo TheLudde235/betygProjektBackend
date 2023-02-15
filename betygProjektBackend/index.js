@@ -13,6 +13,7 @@ import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import { getTokenData } from './helpers/token.js';
+import Joi from 'joi';
 
 dotenv.config();
 
@@ -34,7 +35,7 @@ app.use(cors({
   credentials: true
 }));
 
-app.get('/', adminAuth ,async (req, res) => {
+app.get('/', adminAuth, async (req, res) => {
   const rows = (await cockDB.query('show tables')).rows;
   const obj = {};
   for (const row of rows) {
@@ -43,7 +44,15 @@ app.get('/', adminAuth ,async (req, res) => {
   return res.json(obj);
 });
 
-app.get('/myEstates',adminAuth, async (req, res) => {
+app.get('/:table', adminAuth, async (req, res) => {
+  try {
+    return res.json((await cockDB.query('select * from ' + req.params.table)).rows);
+  } catch (err) {
+    return res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
+  }
+})
+
+app.get('/myEstates', adminAuth, async (req, res) => {
   const user = getTokenData(req);
   const adminID = (await cockDB.query('select adminuuid from administrators where username=$1', [user.username])).rows[0].adminuuid;
   return res.json((await cockDB.query('select * from estates where adminuuid=$1', [adminID])).rows);
@@ -137,14 +146,28 @@ app.post(`/registerWorker`, async (req, res) => {
 
   try {
     const uuid = uuidV4();
-    sendMail({
+    const registeredWorker = (await cockDB.query('select email, phone from workers where email=$1 or phone=$2', [email, phone])).rows[0];
+    if (registeredWorker) {
+      if (registeredWorker.email == email) {
+        if (registeredWorker.phone == phone) {
+          return res.status(StatusCodes.BAD_REQUEST).json({msg: 'email and phone are occupied'});
+        }
+        return res.status(StatusCodes.BAD_REQUEST).json({msg: 'email is occupied'});
+      } else if (registeredWorker.phone == phone) {
+        return res.status(StatusCodes.BAD_REQUEST).json({msg: 'phone is occupied'});
+      }
+    }
+
+
+
+
+    await cockDB.query('insert into tempworkers(email, firstname, lastname, phone, skills, image, confirmationuuid) values ($1, $2, $3, $4, $5, $6, $7)', [email, firstname, lastname, phone, skills, image, uuid]);
+    await sendMail({
       to: email,
       subject: 'Confirm your email',
       html: `
-      <a href="http://localhost:3000/confirmMail/${uuid}">Click Here!</a>
-      `
+      <h1><a href="http://localhost:3000/confirmMail/${uuid}">Click Here!</a></h1>`
     });
-    await cockDB.query('insert into tempworkers(email, firstname, lastname, phone, skills, image, confirmationuuid) values ($1, $2, $3, $4, $5, $6, $7)', [email, firstname, lastname, phone, skills, image, uuid]);
   } catch (err) {
     return res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
   }
@@ -155,9 +178,29 @@ app.post(`/registerWorker`, async (req, res) => {
 });
 
 app.get('/confirmMail/:confirmationuuid', async (req, res) => {
-  const worker = (await (await cockDB.query('select * from tempworkers where confirmationuuid=$1', [req.params.confirmationuuid])).rows[0]);
-  res.json({
-    uuid: req.params.confirmationuuid,
-    test: (await cockDB.query('delete from tempworkers where confirmationuuid=$1', [req.params.confirmationuuid])).rows
-  });
+  try {
+    await cockDB.query('insert into workers select workeruuid, email, firstname, lastname, phone, skills, image from tempworkers where confirmationuuid=$1', [req.params.confirmationuuid]);
+    res.json({
+      uuid: req.params.confirmationuuid,
+      test: (await cockDB.query('delete from tempworkers where confirmationuuid=$1', [req.params.confirmationuuid]))
+    });
+  } catch (err) {
+    res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
+  }
+});
+
+app.post('/resendConfirmation', async (req, res) => {
+  try {
+    await Joi.object({email: Joi.string().email().required()}).validateAsync(req.body);
+    const worker = (await cockDB.query('select * from tempworkers where email=$1', [req.body.email])).rows[0];
+    await sendMail({
+      to: worker.email,
+      subject: 'Confirm your email',
+      html: `
+      <h1><a href="http://localhost:3000/confirmMail/${worker.confirmationuuid}">Click here!</a></h1>`
+    });
+    res.status(StatusCodes.ACCEPTED).json({msg: 'email sent'})
+  } catch (err) {
+    res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
+  }
 });

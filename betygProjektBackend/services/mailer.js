@@ -3,7 +3,7 @@ import nodemailer from 'nodemailer';
 
 dotenv.config()
 
-export function sendMail({subject, to, text, html}) {
+export async function sendMail({subject, to, text, html}) {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     host: 'smtp.gmail.com',
@@ -23,8 +23,5 @@ export function sendMail({subject, to, text, html}) {
     html
   };
   
-  transporter.sendMail(mailOptions, (error, info) =>{
-    if(error) console.error(error)
-    else console.log(info)
-  });
+  return await transporter.sendMail(mailOptions);
 }
