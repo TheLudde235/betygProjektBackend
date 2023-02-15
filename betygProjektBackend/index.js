@@ -123,11 +123,6 @@ app.post('/registerEstate', adminAuth, async (req, res) => {
   return res.status(StatusCodes.CREATED).json({msg: 'Created successfully', id: estateuuid});
 });
 
-
-
-////////////////////////////////////////////////////////////////////////////////
-
-
 app.get('/alreadyRegistered', async (req, res) => {
   return res.json({msg: (await cockDB.query('select * from workers where email=$1 or phone=$2', [req.query.email, req.query.phone])).rowCount > 1});
 });
@@ -145,7 +140,7 @@ app.post(`/registerWorker`, async (req, res) => {
   const image = req.body.image ?? '';
 
   try {
-    const uuid = uuidV4();
+    const uuid = uuidV4().split('-')[0];
     const registeredWorker = (await cockDB.query('select email, phone from workers where email=$1 or phone=$2', [email, phone])).rows[0];
     if (registeredWorker) {
       if (registeredWorker.email == email) {
@@ -158,15 +153,13 @@ app.post(`/registerWorker`, async (req, res) => {
       }
     }
 
-
-
-
     await cockDB.query('insert into tempworkers(email, firstname, lastname, phone, skills, image, confirmationuuid) values ($1, $2, $3, $4, $5, $6, $7)', [email, firstname, lastname, phone, skills, image, uuid]);
     await sendMail({
       to: email,
       subject: 'Confirm your email',
       html: `
-      <h1><a href="http://localhost:3000/confirmMail/${uuid}">Click Here!</a></h1>`
+      <h1><a href="http://localhost:3000/confirmMail/${uuid}">Click Here!</a></h1>
+      <h3>Or type this in the browser: ${uuid}</h3>`
     });
   } catch (err) {
     return res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
@@ -197,7 +190,8 @@ app.post('/resendConfirmation', async (req, res) => {
       to: worker.email,
       subject: 'Confirm your email',
       html: `
-      <h1><a href="http://localhost:3000/confirmMail/${worker.confirmationuuid}">Click here!</a></h1>`
+      <h1><a href="http://localhost:3000/confirmMail/${worker.confirmationuuid}">Click here!</a></h1>
+      <h3>Or type this in the browser: ${uuid}</h3>`
     });
     res.status(StatusCodes.ACCEPTED).json({msg: 'email sent'})
   } catch (err) {
