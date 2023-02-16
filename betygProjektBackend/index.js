@@ -35,7 +35,7 @@ app.use(cors({
   credentials: true
 }));
 
-app.get('/', adminAuth, async (req, res) => {
+app.get('/table', adminAuth, async (req, res) => {
   const rows = (await cockDB.query('show tables')).rows;
   const obj = {};
   for (const row of rows) {
@@ -44,7 +44,7 @@ app.get('/', adminAuth, async (req, res) => {
   return res.json(obj);
 });
 
-app.get('/:table', adminAuth, async (req, res) => {
+app.get('/table/:table', adminAuth, async (req, res) => {
   try {
     return res.json((await cockDB.query('select * from ' + req.params.table)).rows);
   } catch (err) {
@@ -54,8 +54,7 @@ app.get('/:table', adminAuth, async (req, res) => {
 
 app.get('/myEstates', adminAuth, async (req, res) => {
   const user = getTokenData(req);
-  const adminID = (await cockDB.query('select adminuuid from administrators where username=$1', [user.username])).rows[0].adminuuid;
-  return res.json((await cockDB.query('select * from estates where adminuuid=$1', [adminID])).rows);
+  return res.json((await cockDB.query('select * from estates where adminuuid=$1', [user.admin])).rows);
 });
 
 app.post('/register', async (req, res) => {
@@ -124,7 +123,7 @@ app.post('/registerEstate', adminAuth, async (req, res) => {
 });
 
 app.get('/alreadyRegistered', async (req, res) => {
-  return res.json({msg: (await cockDB.query('select * from workers where email=$1 or phone=$2', [req.query.email, req.query.phone])).rowCount > 1});
+  return res.json({msg: (await cockDB.query('select * from workers where email=$1 or phone=$2', [req.query.email, req.query.phone])).rowCount > 0});
 });
 
 app.post(`/registerWorker`, async (req, res) => {
@@ -135,12 +134,14 @@ app.post(`/registerWorker`, async (req, res) => {
     return res.json({msg: err.message});
   }
 
-  const { email, firstname, lastname, phone } = req.body;
+  const { email, firstname, lastname } = req.body;
+  const phone = req.body.phone.replace(/\+\d{2}/, '0').replaceAll(' ', '');
+  console.log(phone);
   const skills = req.body.skills ?? '';
   const image = req.body.image ?? '';
 
   try {
-    const uuid = uuidV4().split('-')[0];
+    const uuid = uuidV4().split('-')[1];
     const registeredWorker = (await cockDB.query('select email, phone from workers where email=$1 or phone=$2', [email, phone])).rows[0];
     if (registeredWorker) {
       if (registeredWorker.email == email) {
@@ -158,7 +159,7 @@ app.post(`/registerWorker`, async (req, res) => {
       to: email,
       subject: 'Confirm your email',
       html: `
-      <h1><a href="http://localhost:3000/confirmMail/${uuid}">Click Here!</a></h1>
+      <h1><a href="http://${process.env.HOST}/confirmMail/${uuid}">Click Here!</a></h1>
       <h3>Or type this in the browser: ${uuid}</h3>`
     });
   } catch (err) {
@@ -172,13 +173,26 @@ app.post(`/registerWorker`, async (req, res) => {
 
 app.get('/confirmMail/:confirmationuuid', async (req, res) => {
   try {
-    await cockDB.query('insert into workers select workeruuid, email, firstname, lastname, phone, skills, image from tempworkers where confirmationuuid=$1', [req.params.confirmationuuid]);
-    res.json({
-      uuid: req.params.confirmationuuid,
-      test: (await cockDB.query('delete from tempworkers where confirmationuuid=$1', [req.params.confirmationuuid]))
-    });
+    if (!req.query.login) {
+      const tempworker = (await cockDB.query('select * from tempworkers where confirmationuuid=$1', [req.params.confirmationuuid])).rows[0];
+      if (!tempworker) throw Error('code is not correct or already used');
+      await cockDB.query('insert into workers(workeruuid, email, firstname, lastname, phone, skills, image) values($1, $2, $3, $4, $5, $6, $7)', [tempworker.workeruuid, tempworker.email, tempworker.firstname, tempworker.lastname, tempworker.phone, tempworker.skills, tempworker.image]);
+      await cockDB.query('delete from tempworkers where confirmationuuid=$1', [req.params.confirmationuuid]);
+      return res.status(StatusCodes.CREATED).json({
+        msg: 'Sucessfully registered',
+        uuid: tempworker.workeruuid
+      });
+    }
+
+    const worker = (await cockDB.query('select * from workerlogin where confirmationcode=$1', [req.params.confirmationuuid])).rows[0];
+    if (!worker) throw Error('code invalid')
+      await cockDB.query('delete from workerlogin where confirmationcode=$1', [worker.confirmationcode]);
+      return res.status(StatusCodes.ACCEPTED).json({
+        msg: 'logged in',
+        uuid: (await cockDB.query('select workeruuid from workers where email=$1', [worker.email])).rows[0].workeruuid
+      })
   } catch (err) {
-    res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
+    return res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
   }
 });
 
@@ -186,15 +200,39 @@ app.post('/resendConfirmation', async (req, res) => {
   try {
     await Joi.object({email: Joi.string().email().required()}).validateAsync(req.body);
     const worker = (await cockDB.query('select * from tempworkers where email=$1', [req.body.email])).rows[0];
+    if (!worker) return res.status(StatusCodes.NOT_FOUND).json({msg: 'email not found'});
     await sendMail({
       to: worker.email,
       subject: 'Confirm your email',
       html: `
-      <h1><a href="http://localhost:3000/confirmMail/${worker.confirmationuuid}">Click here!</a></h1>
-      <h3>Or type this in the browser: ${uuid}</h3>`
+      <h1><a href="http://${process.env.HOST}/confirmMail/${worker.confirmationuuid}">Click here!</a></h1>
+      <h3>Or type this in the browser: ${worker.confirmationuuiduuid}</h3>`
     });
-    res.status(StatusCodes.ACCEPTED).json({msg: 'email sent'})
+    return res.status(StatusCodes.OK).json({msg: 'email sent'})
   } catch (err) {
-    res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
+    return res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
   }
+});
+
+app.get('/workerlogin/:email', async (req, res) => {
+  try {
+    const worker = (await cockDB.query('select email from workers where email=$1', [req.params.email])).rows[0];
+    if (!worker) throw Error(`${req.params.email} does not exits in database`);
+
+    const uuid = uuidV4().split('-')[1];
+    await cockDB.query('insert into workerlogin(confirmationcode, email) values($1, $2)', [uuid, worker.email]);
+    await sendMail({
+      to: worker.email,
+      subject: 'Taxami Login',
+      html: `<h1><a href="http://${process.env.HOST}/confirmMail/${uuid}?login=1">Click here!</a></h1>
+      <h3>Or type this in the browser: ${uuid}</h3>
+      
+      <h1>If you haven't requested to log in do NOT click on any links</h1>
+      `
+    });
+    res.status(StatusCodes.ACCEPTED).json({msg: 'check email for confirmation'});
+  } catch (err) {
+    return res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
+  }
+
 });
