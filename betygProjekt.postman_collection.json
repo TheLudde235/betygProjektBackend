@@ -1,0 +1,321 @@
+{
+	"info": {
+		"_postman_id": "67fa3841-0121-4491-af1b-52ed8028ce5e",
+		"name": "betygProjekt",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20838280"
+	},
+	"item": [
+		{
+			"name": "Estates",
+			"item": [
+				{
+					"name": "myEstates",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlRlcnJ5IiwiYWRtaW4iOiJmNDFlNTQ1OC0xMTYwLTRmNDUtODk5OC1jMWU3ZGQ3Y2U2YzUiLCJpYXQiOjE2NzY1NTE0MDAsImV4cCI6MTY3NjU1NTAwMH0.CFPCVUGg5YAiwHQslycN47Pbbg8gUkVURQ2td86g3RI",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:3000/myEstates",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"myEstates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "registerEstate",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IkZyZWRyaWMiLCJhZG1pbiI6IjJhYTE2OGY4LWZmMTktNGQ0Yy1hOTQ3LTlkYmFhNGEyYTY3ZCIsImlhdCI6MTY3NjU1MDk2NSwiZXhwIjoxNjc2NTU0NTY1fQ.zrpPnFO42qHoyy19XfW25BJbLyw6K8N6p7s0yWsq3aM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"city\": \"Göteborg\",\r\n    \"street\": \"Byvägen\",\r\n    \"streetnumber\": \"2B\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/registerEstate",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"registerEstate"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "users",
+			"item": [
+				{
+					"name": "ownerRegister",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"Fredric\",\r\n    \"password\": \"Perrrsn\",\r\n    \"email\": \"mrpefr@gmail.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/register",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ownerLogin",
+					"request": {
+						"auth": {
+							"type": "bearer"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"Terry\",\r\n    \"password\": \"Davis\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/login",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "worker",
+			"item": [
+				{
+					"name": "registerWorker",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"ludde.lagerstrom@outlook.com\",\r\n    \"firstname\": \"ludvig\",\r\n    \"lastname\": \"Lagerström\",\r\n    \"phone\": \"123 123 12 12\",\r\n    \"image\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/registerWorker",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"registerWorker"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "alreadyRegistered",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:3000/alreadyRegistered?email=ludde.lagerstrom@outlook.com&phone=+467203997833",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"alreadyRegistered"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "ludde.lagerstrom@outlook.com"
+								},
+								{
+									"key": "phone",
+									"value": "+467203997833"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "resendEmail",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"ludde.lagerstrom@outlook.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/resendConfirmation/",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"resendConfirmation",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "confirmMail",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:3000/confirmMail/90b1",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"confirmMail",
+								"90b1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login (request email)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:3000/workerlogin/ludde.lagerstrom@outlook.com",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"workerlogin",
+								"ludde.lagerstrom@outlook.com"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "emailLogin (response email)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:3000/confirmMail/9030?login=1",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"confirmMail",
+								"9030"
+							],
+							"query": [
+								{
+									"key": "login",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "getAll",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlRlcnJ5IiwiYWRtaW4iOnRydWUsImlhdCI6MTY3NjI4NDkzOX0.bsmCIyQHnL__WVa2iioSQp_I8QOi0Vn1hydGwpN6ow0",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:3000/table",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"table"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
