@@ -2,6 +2,9 @@ import Joi from 'joi';
 
 // Users
 
+export const isEmail = (email) => !Joi.string().email().required().validate(email).error;
+export const isAlphaNumberic = (str) => !Joi.string().alphanum().required().validate(str).error;
+
 export const ILoginUser = Joi.object({
   username: Joi.string()
     .alphanum()
@@ -65,4 +68,17 @@ export const IEstate = Joi.object({
   
   streetnumber: Joi.string()
     .required(),
+});
+
+export const ITask = Joi.object({
+  title: Joi.string()
+    .max(50)
+    .required(),
+  
+    description: Joi.string()
+      .required(),
+    
+    estateuuid: Joi.string()
+      .uuid({version: 'uuidv4'})
+      .required()
 });
