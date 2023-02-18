@@ -1,6 +1,6 @@
 import Database from './services/database.js';
 import { StatusCodes } from 'http-status-codes';
-import { adminAuth } from './middleware/auth.js';
+import { adminAuth, workerAuth } from './middleware/auth.js';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import express from 'express';
@@ -9,7 +9,7 @@ import cors from 'cors';
 
 import { getEstate, myEstates, registerEstate } from './routes/estate.js';
 import { getAdmin, login, putAdmin, register } from './routes/admin.js';
-import { getWorker, loginWorker, registerWorker } from './routes/worker.js';
+import { getWorker, loginWorker, registerWorker, updateWorker } from './routes/worker.js';
 import { confirmEmail, resendEmail } from './routes/email.js';
 import { createTask } from './routes/task.js';
 
@@ -71,6 +71,7 @@ app.put('/owner', adminAuth, putAdmin);
 app.post(`/worker`, registerWorker);
 app.get('/workerlogin/:email', loginWorker);
 app.get('/worker/:uuid', getWorker);
+app.put('/worker', workerAuth, updateWorker);
 
 // Emails
 app.get('/confirmMail/:confirmationuuid', confirmEmail);

@@ -4,6 +4,7 @@ import Joi from 'joi';
 
 export const isEmail = (email) => !Joi.string().email().required().validate(email).error;
 export const isAlphaNumberic = (str) => !Joi.string().alphanum().required().validate(str).error;
+export const isPhonenumber = (number) => !Joi.string().regex(/^(?:\+?(\d{1,3}))?[-\s. (]*(\d{3})[-. )]*(\d{3})[-. ]*(\d{4}|(\d{2}\s\d{2}))(?: *x(\d+))?$/).required().validate(number).error;
 
 export const ILoginUser = Joi.object({
   username: Joi.string()

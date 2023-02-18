@@ -1,4 +1,4 @@
-import { IRegisterWorker } from "../services/validation.js";
+import { IRegisterWorker, isEmail, isPhonenumber } from "../services/validation.js";
 import { StatusCodes } from "http-status-codes";
 import {v4 as uuidV4} from 'uuid';
 import { cockDB } from "../index.js";
@@ -45,12 +45,41 @@ export const registerWorker = async (req, res) => {
   }
 
   res.status(StatusCodes.OK);
-  res.cookie('token', jwt.sign({email, admin: false}, jwtSecret), cookieOptions);
   return res.json({msg: 'Check email to confirm'});
 };
 
 export const updateWorker = async (req, res) => {
-  
+  try {
+    const options = ['email', 'firstname', 'lastname', 'image', 'phone']
+    const { email, firstname, lastname, image } = req.body;
+    const phone = req.body.phone ? req.body.phone.replace(/\+\d{2}/, '0').replaceAll(' ', '') : false;
+    if (email && !isEmail(email)) {
+      throw Error('"email" is not a valid email');
+    }
+    if (phone && !isPhonenumber(phone)) {
+      throw Error('"phone" is not a valid phonenumber');
+    }
+
+    let query = 'update workers set '
+    const preparedValues = [];
+    let i = 1;
+    for (const key of options) {
+      if (req.body[key] !== undefined) {
+        query += `${i>1?',':''}${key}=$${i} `;
+        preparedValues.push(req.body[key]);
+        i++;
+      }
+    }
+
+    if (preparedValues.length <= 0) throw Error('Nothing changed');
+    preparedValues.push(res.locals.tokenData.uuid)
+    query += `where workeruuid=$${preparedValues.length}`;
+
+    await cockDB.query(query, preparedValues);
+    res.status(StatusCodes.OK).json({msg: 'updated', uuid: res.locals.tokenData.uuid});
+  } catch (err) {
+    res.status(StatusCodes.BAD_REQUEST).json({msg: err.message, err});
+  }
 }
 
 export const getWorker = async (req, res) => {

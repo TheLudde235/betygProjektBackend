@@ -1,4 +1,4 @@
-import { ILoginUser, IRegisterUser } from '../services/validation.js';
+import { ILoginUser, IRegisterUser, isAlphaNumberic, isEmail } from '../services/validation.js';
 import { v4 as uuidV4 } from 'uuid';
 import { cookieOptions } from '../helpers/cookie.js';
 import { StatusCodes } from 'http-status-codes';
@@ -72,19 +72,20 @@ export const putAdmin = async (req, res) => {
       throw Error('Username is not alphanumeric');
     }
     
-  switch (false){
-    case !username || !email:
-      await cockDB.query('update administrators set email=$1, username=$2 where adminuuid=$3', [req.body.email, req.body.username, res.locals.tokenData.admin]);      
-      break
-    case !username:
-      await cockDB.query('update administrators set username=$1 where adminuuid=$2', [req.body.username, res.locals.tokenData.admin]);
-      break;
-    case !email:
-      await cockDB.query('update administrators set email=$1 where adminuuid=$2', [req.body.email, res.locals.tokenData.admin]);
-      break;
-    default:
-      throw Error('Neither email nor username is valid');
-  }
+    switch (false){
+      case !username || !email:
+        await cockDB.query('update administrators set email=$1, username=$2 where adminuuid=$3', [req.body.email, req.body.username, res.locals.tokenData.admin]);      
+        break
+      case !username:
+        await cockDB.query('update administrators set username=$1 where adminuuid=$2', [req.body.username, res.locals.tokenData.admin]);
+        break;
+      case !email:
+        await cockDB.query('update administrators set email=$1 where adminuuid=$2', [req.body.email, res.locals.tokenData.admin]);
+        break;
+      default:
+        throw Error('Neither email nor username is valid');
+    }
+
     return res.status(StatusCodes.ACCEPTED).json({msg: 'Profile updated', uuid: res.locals.tokenData.admin})
   } catch (err) {
     res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
