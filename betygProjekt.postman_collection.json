@@ -297,17 +297,35 @@
 				{
 					"name": "update worker",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{workertoken}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "PUT",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstname\": \"Ludde\",\r\n    \"phone\": \"0720397833\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
-							"raw": "localhost:3000/worker/cda2c271-7a97-47e2-9079-7699b0b68837",
+							"raw": "localhost:3000/worker",
 							"host": [
 								"localhost"
 							],
 							"port": "3000",
 							"path": [
-								"worker",
-								"cda2c271-7a97-47e2-9079-7699b0b68837"
+								"worker"
 							]
 						}
 					},
