@@ -338,14 +338,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:3000/confirmMail/0900?type=login",
+							"raw": "localhost:3000/confirmMail/57c4?type=login",
 							"host": [
 								"localhost"
 							],
 							"port": "3000",
 							"path": [
 								"confirmMail",
-								"0900"
+								"57c4"
 							],
 							"query": [
 								{
@@ -513,6 +513,11 @@
 		{
 			"key": "terrytoken",
 			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlRlcnJ5IiwiYWRtaW4iOiJmNDFlNTQ1OC0xMTYwLTRmNDUtODk5OC1jMWU3ZGQ3Y2U2YzUiLCJpYXQiOjE2NzYyODQ5Mzl9.p4QgoyeRCYQp0d187WQJFHxcuhzzq0G_fuVa_dJnbgE"
+		},
+		{
+			"key": "workertoken",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiY2RhMmMyNzEtN2E5Ny00N2UyLTkwNzktNzY5OWIwYjY4ODM3IiwiaWF0IjoxNjc2Njc4NDExfQ.pLfUmh_3m13vi_fOONfo4NvSj5OujDSi7fE4-62zWYk",
+			"type": "string"
 		}
 	]
 }
