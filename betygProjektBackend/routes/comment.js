@@ -22,7 +22,7 @@ export const createComment = async (req, res) => {
   }
 
   try {
-    await cockDB.query('insert into comments(estateuuuid, text, admin, useruuid) values($1, $2, $3, $4)', [estateuuid, text, isAdmin, useruuid]);
+    await cockDB.query('insert into comments(estateuuid, text, admin, useruuid) values($1, $2, $3, $4)', [estateuuid, text, isAdmin, useruuid]);
     return res.status(StatusCodes.ACCEPTED).json({msg: 'comment uploaded'});
   } catch (err) {
     res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
