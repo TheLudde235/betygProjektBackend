@@ -1,7 +1,7 @@
 {
 	"info": {
-		"_postman_id": "874a8371-8acc-463b-a0b0-28e5da4dc200",
-		"name": "betygProjekt",
+		"_postman_id": "f0482fa1-a14c-4f6b-87ee-7e8a2b001e76",
+		"name": "betygProjekt Copy",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "20838280"
 	},
@@ -636,6 +636,19 @@
 								}
 							]
 						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "comments",
+			"item": [
+				{
+					"name": "create comment",
+					"request": {
+						"method": "GET",
+						"header": []
 					},
 					"response": []
 				}
