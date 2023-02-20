@@ -15,11 +15,21 @@
 						{
 							"name": "add task",
 							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{terrytoken}}",
+											"type": "string"
+										}
+									]
+								},
 								"method": "POST",
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"title\": \"Task Title\",\r\n    \"description\": \"Task description\",\r\n    \"estateuuid\": \"06c04b53-9183-4641-8b1e-cefd6bc16aaf\"\r\n}",
+									"raw": "{\r\n    \"title\": \"Task Title2\",\r\n    \"description\": \"Task description2\",\r\n    \"estateuuid\": \"06c04b53-9183-4641-8b1e-cefd6bc16aaf\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -45,14 +55,100 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "localhost:3000/task/",
+									"raw": "localhost:3000/task/beb3411f-b06c-11ed-9f6f-0f77e0f821b5",
 									"host": [
 										"localhost"
 									],
 									"port": "3000",
 									"path": [
 										"task",
-										""
+										"beb3411f-b06c-11ed-9f6f-0f77e0f821b5"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get tasks from estate",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "localhost:3000/tasks/06c04b53-9183-4641-8b1e-cefd6bc16aaf",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"tasks",
+										"06c04b53-9183-4641-8b1e-cefd6bc16aaf"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update task",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{terrytoken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"completed\": false\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "localhost:3000/task/beb3411f-b06c-11ed-9f6f-0f77e0f821b5",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"task",
+										"beb3411f-b06c-11ed-9f6f-0f77e0f821b5"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete task",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{terrytoken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "localhost:3000/task/beb3411f-b06c-11ed-9f6f-0f77e0f821b5",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"task",
+										"beb3411f-b06c-11ed-9f6f-0f77e0f821b5"
 									]
 								}
 							},
@@ -105,7 +201,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"city\": \"Halmstad\",\r\n    \"street\": \"Skolgatan\",\r\n    \"streetnumber\": \"4B\"\r\n}",
+							"raw": "{\r\n    \"city\": \"Borås\",\r\n    \"street\": \"Helvetet plan 11\",\r\n    \"streetnumber\": \"666\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -131,14 +227,52 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:3000/estate/9c9bc1f3-9e6a-4856-8f4b-ef898acf9ccd",
+							"raw": "localhost:3000/estate/2ae60ded-5abb-45bd-a47e-eb5854101112",
 							"host": [
 								"localhost"
 							],
 							"port": "3000",
 							"path": [
 								"estate",
-								"9c9bc1f3-9e6a-4856-8f4b-ef898acf9ccd"
+								"2ae60ded-5abb-45bd-a47e-eb5854101112"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update estate",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{terrytoken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"city\": \"Göteborg\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/estate/c40084da-7006-461b-9f36-def7104d9163",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"estate",
+								"c40084da-7006-461b-9f36-def7104d9163"
 							]
 						}
 					},
@@ -156,7 +290,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"username\": \"Fredri1c1\",\r\n    \"password\": \"Perrrsn\",\r\n    \"email\": \"mrpe1f3r@gmail.com\"\r\n}",
+							"raw": "{\r\n    \"username\": \"robert\",\r\n    \"password\": \"olsen\",\r\n    \"email\": \"robert.olsen@halmstad.se\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -212,14 +346,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:3000/owner/f41e5458-1160-4f45-8998-c1e7dd7ce6c5",
+							"raw": "localhost:3000/owner/0cc58754-7c62-4967-8d7f-3ad9051f2b2c",
 							"host": [
 								"localhost"
 							],
 							"port": "3000",
 							"path": [
 								"owner",
-								"f41e5458-1160-4f45-8998-c1e7dd7ce6c5"
+								"0cc58754-7c62-4967-8d7f-3ad9051f2b2c"
 							]
 						}
 					},
@@ -274,7 +408,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"email\": \"ludde.lagerstrom@outlook.com\",\r\n    \"firstname\": \"ludvig\",\r\n    \"lastname\": \"Lagerström\",\r\n    \"phone\": \"123 123 12 12\",\r\n    \"image\": \"\"\r\n}",
+							"raw": "{\r\n    \"email\": \"robbom0319@edu.halmstad.se\",\r\n    \"firstname\": \"Robster\",\r\n    \"lastname\": \"Boddemannen\",\r\n    \"phone\": \"123 123 12 12\",\r\n    \"image\": \"\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -302,7 +436,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "{{workertoken}}",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiUm9ic3RlciBCb2RkZW1hbm5lbiIsInV1aWQiOiJkYTFjMWVkOS1kOWIxLTRhODAtOGYwNi0xNzVlMDYyMzVkNDMiLCJpYXQiOjE2NzY3NDU0MTJ9.8BMoxnggK8RqNs1tY51zM4hD8cUAjPCX12SmBMCHbBo",
 									"type": "string"
 								}
 							]
@@ -311,7 +445,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"firstname\": \"Ludde\",\r\n    \"phone\": \"0720397833\"\r\n}",
+							"raw": "{\r\n    \"firstname\": \"Robin\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -356,14 +490,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:3000/confirmMail/57c4?type=login",
+							"raw": "localhost:3000/confirmMail/b6b7?type=login",
 							"host": [
 								"localhost"
 							],
 							"port": "3000",
 							"path": [
 								"confirmMail",
-								"57c4"
+								"b6b7"
 							],
 							"query": [
 								{
@@ -381,14 +515,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:3000/workerlogin/ludde.lagerstrom@outlook.com",
+							"raw": "localhost:3000/workerlogin/robbom0319@edu.halmstad.se",
 							"host": [
 								"localhost"
 							],
 							"port": "3000",
 							"path": [
 								"workerlogin",
-								"ludde.lagerstrom@outlook.com"
+								"robbom0319@edu.halmstad.se"
 							]
 						}
 					},
@@ -424,14 +558,14 @@
 						"method": "POST",
 						"header": [],
 						"url": {
-							"raw": "localhost:3000/resendConfirmation/ludde.lagerstrom@outlook.com?type=login",
+							"raw": "localhost:3000/resendConfirmation/robbom0319@edu.halmstad.se?type=login",
 							"host": [
 								"localhost"
 							],
 							"port": "3000",
 							"path": [
 								"resendConfirmation",
-								"ludde.lagerstrom@outlook.com"
+								"robbom0319@edu.halmstad.se"
 							],
 							"query": [
 								{
@@ -464,13 +598,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:3000/table",
+							"raw": "localhost:3000/table/estates",
 							"host": [
 								"localhost"
 							],
 							"port": "3000",
 							"path": [
-								"table"
+								"table",
+								"estates"
 							]
 						}
 					},

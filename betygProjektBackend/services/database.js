@@ -16,19 +16,7 @@ export default class Database {
   }
  
   async getClient() {
-    await client.connect()
-    const query = client.query
-    const release = client.release
-
-    client.query = (...args) => {
-      client.lastQuery = args
-      return query.apply(client, args)
-    }
-    client.release = () => {
-      client.query = query
-      client.release = release
-      return release.apply(client)
-    }
+    await client.connect();
     return client
   }
 }

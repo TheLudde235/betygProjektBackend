@@ -5,6 +5,7 @@ import { StatusCodes } from 'http-status-codes';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { cockDB, salt } from '../index.js';
+import { getUpdateQuery } from '../helpers/update.js';
 
 export const register = async (req, res) => {
   try {
@@ -53,7 +54,7 @@ export const login = async (req, res) => {
 
 export const getAdmin = async (req, res) => {
   try {
-    const admin = (await cockDB.query('select username, password, adminuuid from administrators where adminuuid=$1', [req.params.uuid])).rows[0];
+    const admin = (await cockDB.query('select username, email, adminuuid from administrators where adminuuid=$1', [req.params.uuid])).rows[0];
     res.status(StatusCodes.ACCEPTED).json({admin});
   } catch (err) {
     res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
@@ -72,19 +73,10 @@ export const putAdmin = async (req, res) => {
       throw Error('Username is not alphanumeric');
     }
     
-    switch (false){
-      case !username || !email:
-        await cockDB.query('update administrators set email=$1, username=$2 where adminuuid=$3', [req.body.email, req.body.username, res.locals.tokenData.admin]);      
-        break
-      case !username:
-        await cockDB.query('update administrators set username=$1 where adminuuid=$2', [req.body.username, res.locals.tokenData.admin]);
-        break;
-      case !email:
-        await cockDB.query('update administrators set email=$1 where adminuuid=$2', [req.body.email, res.locals.tokenData.admin]);
-        break;
-      default:
-        throw Error('Neither email nor username is valid');
-    }
+    const {query, values} = getUpdateQuery(['email', 'username'], 'adminstrators', req.body, {
+      'adminuuid': res.locals.tokenData.admin
+    });
+    await cockDB.query(query, values);
 
     return res.status(StatusCodes.ACCEPTED).json({msg: 'Profile updated', uuid: res.locals.tokenData.admin})
   } catch (err) {

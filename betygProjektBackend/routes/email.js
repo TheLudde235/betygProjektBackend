@@ -2,6 +2,7 @@ import { cockDB } from "../index.js";
 import { sendMail } from "../services/mailer.js";
 import { StatusCodes } from "http-status-codes";
 import jwt from 'jsonwebtoken';
+import { isEmail } from "../services/validation.js";
 
 export const confirmEmail = async (req, res) => {
   try {
@@ -13,7 +14,7 @@ export const confirmEmail = async (req, res) => {
       return res.status(StatusCodes.CREATED).json({
         msg: 'Sucessfully registered',
         uuid: tempworker.workeruuid,
-        token: jwt.sign({name: tempworker.firstname + ' ' + tempworker.lastname, uuid: tempworker.workeruuid})
+        token: jwt.sign({name: tempworker.firstname + ' ' + tempworker.lastname, uuid: tempworker.workeruuid}, process.env.JWT_SECRET)
       });
     }
 
@@ -24,7 +25,7 @@ export const confirmEmail = async (req, res) => {
     return res.status(StatusCodes.ACCEPTED).json({
       msg: `${req.query.type} succesfull`,
       uuid: user.useruuid,
-      token: req.query.type == 'login' ? jwt.sign({uuid: user.useruuid}, process.env.JWT_SECRET): null
+      token: jwt.sign({uuid: user.useruuid}, process.env.JWT_SECRET)
     });
   } catch (err) {
     return res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});

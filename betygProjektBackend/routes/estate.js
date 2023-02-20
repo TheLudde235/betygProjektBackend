@@ -2,6 +2,8 @@ import { IEstate } from '../services/validation.js';
 import { v4 as uuidV4 } from 'uuid';
 import { StatusCodes } from 'http-status-codes';
 import { cockDB } from '../index.js';
+import { getUpdateQuery } from '../helpers/update.js';
+
 export const registerEstate = async (req, res) => {
   try {
     await IEstate.validateAsync(req.body);
@@ -38,5 +40,18 @@ export const getEstate = async (req, res) => {
     res.status(StatusCodes.OK).json({ estate });
   } catch (err) {
     res.status(StatusCodes.NOT_FOUND).json({msg: err.message});
+  }
+};
+
+export const updateEstate = async (req, res) => {
+  try {
+    const {query, values} = getUpdateQuery(['city', 'street', 'streetnumber'], 'estates', req.body, {
+      'estateuuid': req.params.uuid,
+      'adminuuid': res.locals.tokenData.admin
+    });
+    // await cockDB.query(query, values);
+    return res.status(StatusCodes.ACCEPTED).json({msg: 'Updated succesfully', query, values});
+  } catch (err) {
+    res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
   }
 };

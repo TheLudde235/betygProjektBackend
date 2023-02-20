@@ -7,11 +7,11 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 
-import { getEstate, myEstates, registerEstate } from './routes/estate.js';
+import { getEstate, myEstates, registerEstate, updateEstate } from './routes/estate.js';
 import { getAdmin, login, putAdmin, register } from './routes/admin.js';
 import { getWorker, loginWorker, registerWorker, updateWorker } from './routes/worker.js';
 import { confirmEmail, resendEmail } from './routes/email.js';
-import { createTask } from './routes/task.js';
+import { updateTask, createTask, getTask, getTasksFromEstate, deleteTask } from './routes/task.js';
 
 dotenv.config();
 
@@ -43,35 +43,34 @@ app.get('/table', adminAuth, async (req, res) => {
   }
   return res.json(obj);
 });
-
 app.get('/table/:table', adminAuth, async (req, res) => {
   try {
     return res.json((await cockDB.query('select * from ' + req.params.table)).rows);
   } catch (err) {
     return res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
   }
-})
-
+});
 app.get('/alreadyRegistered', async (req, res) => {
   return res.json({msg: (await cockDB.query('select * from workers where email=$1 or phone=$2', [req.query.email, req.query.phone])).rowCount > 0});
 });
 
 // Estates
 app.get('/myEstates', adminAuth, myEstates);
-app.get('/estate/:uuid', getEstate);
 app.post('/registerEstate', adminAuth, registerEstate);
+app.put('/estate/:uuid', adminAuth, updateEstate);
+app.get('/estate/:uuid', getEstate);
 
 // Admins
+app.put('/owner', adminAuth, putAdmin);
 app.post('/register', register);
 app.post('/login', login);
 app.get('/owner/:uuid', getAdmin);
-app.put('/owner', adminAuth, putAdmin);
 
 // Workers
+app.put('/worker', workerAuth, updateWorker);
 app.post(`/worker`, registerWorker);
 app.get('/workerlogin/:email', loginWorker);
 app.get('/worker/:uuid', getWorker);
-app.put('/worker', workerAuth, updateWorker);
 
 // Emails
 app.get('/confirmMail/:confirmationuuid', confirmEmail);
@@ -79,3 +78,9 @@ app.post('/resendConfirmation/:email', resendEmail);
 
 // Tasks
 app.post('/task', adminAuth, createTask);
+app.put('/task/:taskuuid', adminAuth, updateTask);
+app.delete('/task/:taskuuid', adminAuth, deleteTask);
+app.get('/task/:taskuuid', getTask);
+app.get('/tasks/:estateuuid', getTasksFromEstate);
+
+// Comments
