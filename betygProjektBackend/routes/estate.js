@@ -49,8 +49,8 @@ export const updateEstate = async (req, res) => {
       'estateuuid': req.params.uuid,
       'adminuuid': res.locals.tokenData.admin
     });
-    // await cockDB.query(query, values);
-    return res.status(StatusCodes.ACCEPTED).json({msg: 'Updated succesfully', query, values});
+    await cockDB.query(query, values);
+    return res.status(StatusCodes.ACCEPTED).json({msg: 'Updated succesfully'});
   } catch (err) {
     res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
   }

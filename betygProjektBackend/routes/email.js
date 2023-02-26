@@ -1,8 +1,8 @@
 import { cockDB } from "../index.js";
 import { sendMail } from "../services/mailer.js";
 import { StatusCodes } from "http-status-codes";
-import jwt from 'jsonwebtoken';
 import { isEmail } from "../services/validation.js";
+import { getWorkerToken } from "../helpers/tokens.js";
 
 export const confirmEmail = async (req, res) => {
   try {
@@ -14,18 +14,18 @@ export const confirmEmail = async (req, res) => {
       return res.status(StatusCodes.CREATED).json({
         msg: 'Sucessfully registered',
         uuid: tempworker.workeruuid,
-        token: jwt.sign({name: tempworker.firstname + ' ' + tempworker.lastname, uuid: tempworker.workeruuid}, process.env.JWT_SECRET)
+        token: await getWorkerToken({tempworker})
       });
     }
 
     const user = (await cockDB.query('select * from emailconfirmations where confirmationcode=$1 and type=$2', [req.params.confirmationuuid, req.query.type])).rows[0];
     if (!user) throw Error('code is not correct or already used');
 
-    await cockDB.query('delete from emailconfirmations where confirmationcode=$1 and type=$2', [user.confirmationcode, req.query.type]);
+    // await cockDB.query('delete from emailconfirmations where confirmationcode=$1 and type=$2', [user.confirmationcode, req.query.type]);
     return res.status(StatusCodes.ACCEPTED).json({
       msg: `${req.query.type} succesfull`,
       uuid: user.useruuid,
-      token: jwt.sign({uuid: user.useruuid}, process.env.JWT_SECRET)
+      token: await getWorkerToken(user)
     });
   } catch (err) {
     return res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});

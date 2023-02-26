@@ -64,13 +64,28 @@ export async function estateAuth(req, res, next) {
     if (res.locals.tokenData.admin) {
       const matches = (await cockDB.query('select adminuuid from estates where adminuuid=$1 and estateuuid=$2', [uuid, req.params.estateuuid])).rows;
       if (matches.length <= 0) {
-        return res.status(StatusCodes.NOT_ACCEPTABLE).json({msg: 'You are not authorized to view comments for estate' + req.params.estateuuid});
+        return res.status(StatusCodes.NOT_ACCEPTABLE).json({msg: 'You are not authorized to view information for estate ' + req.params.estateuuid});
       }
     } else {
-      const matches = (await cockDB.query('select workeruuid')) 
+      const matches = (await cockDB.query('select workeruuid from estate_worker_relations where workeruuid=$1 and estateuuid=$2', [uuid, req.params.estateuuid])).rows;
+      if (matches.length <= 0) {
+        return res.status(StatusCodes.NOT_ACCEPTABLE).json({msg: 'You are not authorized to view information for estate ' + req.params.estateuuid});
+      }
     } 
   } catch (err) {
-
+    res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
   }
   next();
+};
+
+export function taskAuth(req, res, next) {
+  const token = res.locals.tokenData;
+  try {
+    let matches;
+    if (token.admin) {
+      matches = (await cockDB.query('select adminuuid from tasks where taskuuid=$1 and adminuuid=$2', [req.params.taskuuid, token.admin])).rows;
+    } else {
+      matches = (await cockDB.query('select ')) 
+    }
+  }
 }

@@ -22,7 +22,7 @@ export const createComment = async (req, res) => {
   }
 
   try {
-    await cockDB.query('insert into comments(estateuuid, text, admin, useruuid) values($1, $2, $3, $4)', [estateuuid, text, isAdmin, useruuid]);
+    await cockDB.query('insert into comments(taskuuid, text, admin, useruuid) values($1, $2, $3, $4)', [estateuuid, text, isAdmin, useruuid]);
     return res.status(StatusCodes.ACCEPTED).json({msg: 'comment uploaded'});
   } catch (err) {
     res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
@@ -33,13 +33,13 @@ export const deleteComment = (req, res) => {
   try {
     const useruuid = res.locals.tokenData.admin ?? res.locals.tokenData.uuid;
     console.log(useruuid);
-    // const comment = (await cockDB.query('select * from comments where'))
+
   } catch (err) {}
 };
 
 export const getComments = async (req, res) => {
   try {
-    const comments = (await cockDB.query('select * from comments where estateuuid=$1', [req.params.estateuuid])).rows;
+    const comments = (await cockDB.query('select * from comments where taskuuid=$1', [req.params.taskuuid])).rows;
     return res.status(StatusCodes.ACCEPTED).json({comments});
   } catch (err) {
     return res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});

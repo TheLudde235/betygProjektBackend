@@ -13,6 +13,7 @@ import { getWorker, loginWorker, registerWorker, updateWorker } from './routes/w
 import { confirmEmail, resendEmail } from './routes/email.js';
 import { updateTask, createTask, getTask, getTasksFromEstate, deleteTask } from './routes/task.js';
 import { createComment, deleteComment, getComments } from './routes/comment.js';
+import { addWorker, deleteWorker as removeWorker } from './routes/workerEstateRelation.js';
 
 dotenv.config();
 
@@ -73,19 +74,22 @@ app.post(`/worker`, registerWorker);
 app.get('/workerlogin/:email', loginWorker);
 app.get('/worker/:uuid', getWorker);
 
+  // estate relations
+  app.post('/addworker/:estateuuid', adminAuth, estateAuth, addWorker);
+  app.delete('/removeworker/:estateuuid', userAuth, estateAuth, removeWorker);
+
 // Emails
 app.get('/confirmMail/:confirmationuuid', confirmEmail);
 app.post('/resendConfirmation/:email', resendEmail);
 
 // Tasks
-app.post('/task', adminAuth, createTask);
+app.post('/task/:estateuuid', adminAuth, estateAuth, createTask);
+app.get('/tasks/:estateuuid', userAuth, estateAuth, getTasksFromEstate);
 app.put('/task/:taskuuid', adminAuth, updateTask);
 app.delete('/task/:taskuuid', adminAuth, deleteTask);
 app.get('/task/:taskuuid', getTask);
-app.get('/tasks/:estateuuid', getTasksFromEstate);
 
 // Comments
-
 app.post('/comment/:uuid', userAuth, createComment);
 app.delete('/comment/:uuid', userAuth, deleteComment);
-app.get('/comments/:estateuuid', userAuth, estateAuth, getComments);
+app.get('/comments/:taskuuid', userAuth, getComments);
