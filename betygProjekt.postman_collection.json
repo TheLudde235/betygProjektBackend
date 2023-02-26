@@ -1,7 +1,7 @@
 {
 	"info": {
-		"_postman_id": "f0482fa1-a14c-4f6b-87ee-7e8a2b001e76",
-		"name": "betygProjekt Copy",
+		"_postman_id": "1708b259-e9d2-4aac-9313-c497b169b771",
+		"name": "betygProjekt",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "20838280"
 	},
@@ -37,11 +37,10 @@
 									}
 								},
 								"url": {
-									"raw": "localhost:3000/task",
+									"raw": "{{host}}/task",
 									"host": [
-										"localhost"
+										"{{host}}"
 									],
-									"port": "3000",
 									"path": [
 										"task"
 									]
@@ -55,11 +54,10 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "localhost:3000/task/beb3411f-b06c-11ed-9f6f-0f77e0f821b5",
+									"raw": "{{host}}/task/beb3411f-b06c-11ed-9f6f-0f77e0f821b5",
 									"host": [
-										"localhost"
+										"{{host}}"
 									],
-									"port": "3000",
 									"path": [
 										"task",
 										"beb3411f-b06c-11ed-9f6f-0f77e0f821b5"
@@ -74,11 +72,10 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "localhost:3000/tasks/06c04b53-9183-4641-8b1e-cefd6bc16aaf",
+									"raw": "{{host}}/tasks/06c04b53-9183-4641-8b1e-cefd6bc16aaf",
 									"host": [
-										"localhost"
+										"{{host}}"
 									],
-									"port": "3000",
 									"path": [
 										"tasks",
 										"06c04b53-9183-4641-8b1e-cefd6bc16aaf"
@@ -112,11 +109,10 @@
 									}
 								},
 								"url": {
-									"raw": "localhost:3000/task/beb3411f-b06c-11ed-9f6f-0f77e0f821b5",
+									"raw": "{{host}}/task/beb3411f-b06c-11ed-9f6f-0f77e0f821b5",
 									"host": [
-										"localhost"
+										"{{host}}"
 									],
-									"port": "3000",
 									"path": [
 										"task",
 										"beb3411f-b06c-11ed-9f6f-0f77e0f821b5"
@@ -141,11 +137,10 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "localhost:3000/task/beb3411f-b06c-11ed-9f6f-0f77e0f821b5",
+									"raw": "{{host}}/task/beb3411f-b06c-11ed-9f6f-0f77e0f821b5",
 									"host": [
-										"localhost"
+										"{{host}}"
 									],
-									"port": "3000",
 									"path": [
 										"task",
 										"beb3411f-b06c-11ed-9f6f-0f77e0f821b5"
@@ -172,11 +167,10 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:3000/myEstates",
+							"raw": "{{host}}/myEstates",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
-							"port": "3000",
 							"path": [
 								"myEstates"
 							]
@@ -209,11 +203,10 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:3000/registerEstate",
+							"raw": "{{host}}/registerEstate",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
-							"port": "3000",
 							"path": [
 								"registerEstate"
 							]
@@ -227,11 +220,10 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:3000/estate/2ae60ded-5abb-45bd-a47e-eb5854101112",
+							"raw": "{{host}}/estate/2ae60ded-5abb-45bd-a47e-eb5854101112",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
-							"port": "3000",
 							"path": [
 								"estate",
 								"2ae60ded-5abb-45bd-a47e-eb5854101112"
@@ -265,14 +257,31 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:3000/estate/c40084da-7006-461b-9f36-def7104d9163",
+							"raw": "{{host}}/estate/c40084da-7006-461b-9f36-def7104d9163",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
-							"port": "3000",
 							"path": [
 								"estate",
 								"c40084da-7006-461b-9f36-def7104d9163"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add worker",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/addWorker/2aa168f8-ff19-4d4c-a947-9dbaa4a2a67d",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"addWorker",
+								"2aa168f8-ff19-4d4c-a947-9dbaa4a2a67d"
 							]
 						}
 					},
@@ -298,11 +307,10 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:3000/register",
+							"raw": "{{host}}/register",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
-							"port": "3000",
 							"path": [
 								"register"
 							]
@@ -328,11 +336,10 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:3000/login",
+							"raw": "{{host}}/login",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
-							"port": "3000",
 							"path": [
 								"login"
 							]
@@ -346,11 +353,10 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:3000/owner/0cc58754-7c62-4967-8d7f-3ad9051f2b2c",
+							"raw": "{{host}}/owner/0cc58754-7c62-4967-8d7f-3ad9051f2b2c",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
-							"port": "3000",
 							"path": [
 								"owner",
 								"0cc58754-7c62-4967-8d7f-3ad9051f2b2c"
@@ -384,11 +390,10 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:3000/owner",
+							"raw": "{{host}}/owner",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
-							"port": "3000",
 							"path": [
 								"owner"
 							]
@@ -416,11 +421,10 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:3000/worker",
+							"raw": "{{host}}/worker",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
-							"port": "3000",
 							"path": [
 								"worker"
 							]
@@ -453,11 +457,10 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:3000/worker",
+							"raw": "{{host}}/worker",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
-							"port": "3000",
 							"path": [
 								"worker"
 							]
@@ -471,11 +474,10 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:3000/worker/cda2c271-7a97-47e2-9079-7699b0b68837",
+							"raw": "{{host}}/worker/cda2c271-7a97-47e2-9079-7699b0b68837",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
-							"port": "3000",
 							"path": [
 								"worker",
 								"cda2c271-7a97-47e2-9079-7699b0b68837"
@@ -490,11 +492,10 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:3000/confirmMail/b6b7?type=login",
+							"raw": "{{host}}/confirmMail/b6b7?type=login",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
-							"port": "3000",
 							"path": [
 								"confirmMail",
 								"b6b7"
@@ -515,11 +516,10 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:3000/workerlogin/robbom0319@edu.halmstad.se",
+							"raw": "{{host}}/workerlogin/robbom0319@edu.halmstad.se",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
-							"port": "3000",
 							"path": [
 								"workerlogin",
 								"robbom0319@edu.halmstad.se"
@@ -539,11 +539,10 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:3000/confirmMail/2653",
+							"raw": "{{host}}/confirmMail/2653",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
-							"port": "3000",
 							"path": [
 								"confirmMail",
 								"2653"
@@ -558,11 +557,10 @@
 						"method": "POST",
 						"header": [],
 						"url": {
-							"raw": "localhost:3000/resendConfirmation/robbom0319@edu.halmstad.se?type=login",
+							"raw": "{{host}}/resendConfirmation/robbom0319@edu.halmstad.se?type=login",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
-							"port": "3000",
 							"path": [
 								"resendConfirmation",
 								"robbom0319@edu.halmstad.se"
@@ -598,14 +596,13 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:3000/table/estates",
+							"raw": "{{host}}/table/",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
-							"port": "3000",
 							"path": [
 								"table",
-								"estates"
+								""
 							]
 						}
 					},
@@ -617,11 +614,10 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:3000/alreadyRegistered?email=ludde.lagerstrom@outlook.com&phone=+467203997833",
+							"raw": "{{host}}/alreadyRegistered?email=ludde.lagerstrom@outlook.com&phone=+467203997833",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
-							"port": "3000",
 							"path": [
 								"alreadyRegistered"
 							],
@@ -647,8 +643,65 @@
 				{
 					"name": "create comment",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{workertoken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"text\": \"This is KG!!!!!!\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/comment/9c9bc1f3-9e6a-4856-8f4b-ef898acf9ccd",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"comment",
+								"9c9bc1f3-9e6a-4856-8f4b-ef898acf9ccd"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get comments",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{terrytoken}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
-						"header": []
+						"header": [],
+						"url": {
+							"raw": "{{host}}/comments/2aa168f8-ff19-4d4c-a947-9dbaa4a2a67d",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"comments",
+								"2aa168f8-ff19-4d4c-a947-9dbaa4a2a67d"
+							]
+						}
 					},
 					"response": []
 				}
@@ -684,6 +737,10 @@
 			"key": "workertoken",
 			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiY2RhMmMyNzEtN2E5Ny00N2UyLTkwNzktNzY5OWIwYjY4ODM3IiwiaWF0IjoxNjc2Njc4NDExfQ.pLfUmh_3m13vi_fOONfo4NvSj5OujDSi7fE4-62zWYk",
 			"type": "string"
+		},
+		{
+			"key": "host",
+			"value": "localhost:3000"
 		}
 	]
 }

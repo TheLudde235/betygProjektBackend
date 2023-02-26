@@ -1,6 +1,6 @@
 import Database from './services/database.js';
 import { StatusCodes } from 'http-status-codes';
-import { adminAuth, userAuth, workerAuth } from './middleware/auth.js';
+import { adminAuth, estateAuth, userAuth, workerAuth } from './middleware/auth.js';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import express from 'express';
@@ -12,7 +12,7 @@ import { getAdmin, login, putAdmin, register } from './routes/admin.js';
 import { getWorker, loginWorker, registerWorker, updateWorker } from './routes/worker.js';
 import { confirmEmail, resendEmail } from './routes/email.js';
 import { updateTask, createTask, getTask, getTasksFromEstate, deleteTask } from './routes/task.js';
-import { createComment } from './routes/comment.js';
+import { createComment, deleteComment, getComments } from './routes/comment.js';
 
 dotenv.config();
 
@@ -87,3 +87,5 @@ app.get('/tasks/:estateuuid', getTasksFromEstate);
 // Comments
 
 app.post('/comment/:uuid', userAuth, createComment);
+app.delete('/comment/:uuid', userAuth, deleteComment);
+app.get('/comments/:estateuuid', userAuth, estateAuth, getComments);
