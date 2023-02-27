@@ -21,7 +21,7 @@ export const confirmEmail = async (req, res) => {
     const user = (await cockDB.query('select * from emailconfirmations where confirmationcode=$1 and type=$2', [req.params.confirmationuuid, req.query.type])).rows[0];
     if (!user) throw Error('code is not correct or already used');
 
-    // await cockDB.query('delete from emailconfirmations where confirmationcode=$1 and type=$2', [user.confirmationcode, req.query.type]);
+    await cockDB.query('delete from emailconfirmations where confirmationcode=$1 and type=$2', [user.confirmationcode, req.query.type]);
     return res.status(StatusCodes.ACCEPTED).json({
       msg: `${req.query.type} succesfull`,
       uuid: user.useruuid,
