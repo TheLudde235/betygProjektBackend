@@ -13,7 +13,7 @@ import { getWorker, loginWorker, registerWorker, updateWorker } from './routes/w
 import { confirmEmail, resendEmail } from './routes/email.js';
 import { updateTask, createTask, getTask, getTasksFromEstate, deleteTask } from './routes/task.js';
 import { createComment, deleteComment, getComments } from './routes/comment.js';
-import { addWorker, deleteWorker as removeWorker } from './routes/workerEstateRelation.js';
+import { addWorker, removeWorker } from './routes/workerEstateRelation.js';
 
 dotenv.config();
 

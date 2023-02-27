@@ -24,7 +24,7 @@ export const addWorker = async (req, res) => {
     }
 };
 
-export const deleteWorker = async (req, res) => {
+export const removeWorker = async (req, res) => {
     try {
         const token = res.locals.tokenData;
         if (token.admin) {
