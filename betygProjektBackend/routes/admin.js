@@ -2,10 +2,10 @@ import { ILoginUser, IRegisterUser, isAlphaNumberic, isEmail } from '../services
 import { v4 as uuidV4 } from 'uuid';
 import { cookieOptions } from '../helpers/cookie.js';
 import { StatusCodes } from 'http-status-codes';
-import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { cockDB, salt } from '../index.js';
 import { getUpdateQuery } from '../helpers/update.js';
+import { getAdminToken } from '../helpers/tokens.js';
 
 export const register = async (req, res) => {
   try {
@@ -20,7 +20,7 @@ export const register = async (req, res) => {
   try {
     const uuid = uuidV4();
     await cockDB.query('insert into administrators (adminuuid, username, email, password) values($1, $2, $3, $4)', [uuid, username.trim(), email, await bcrypt.hash(password, salt)]);  
-    const token = jwt.sign({username: username.trim(), admin: uuid}, process.env.JWT_SECRET, {expiresIn: '1h'});
+    const token = await getAdminToken({username: username.trim(), email, uuid});
     res.cookie('token', token, cookieOptions);
     res.status(StatusCodes.CREATED);
     return res.json({msg: 'Created Succesfully', token});
@@ -40,11 +40,11 @@ export const login = async (req, res) => {
   const {username, password} = req.body;
   
   try {
-    const user = (await cockDB.query('select password, adminuuid from administrators where username=$1', [username])).rows[0];
+    const user = (await cockDB.query('select password, adminuuid, email from administrators where username=$1', [username])).rows[0];
     if (!await bcrypt.compare(password, user.password)) {
       throw Error('bad username or password');
     }
-    const token = jwt.sign({username, admin: user.adminuuid}, process.env.JWT_SECRET, {expiresIn: '1h'});
+    const token = await getAdminToken({username, email: user.email, uuid: user.adminuuid});
     res.setHeader('token', token);
     return res.status(StatusCodes.OK).json({msg: 'logged in', token});
   } catch(err) {
@@ -73,12 +73,12 @@ export const putAdmin = async (req, res) => {
       throw Error('Username is not alphanumeric');
     }
     
-    const {query, values} = getUpdateQuery(['email', 'username'], 'adminstrators', req.body, {
-      'adminuuid': res.locals.tokenData.admin
+    const {query, values} = getUpdateQuery(['email', 'username'], 'administrators', req.body, {
+      'adminuuid': res.locals.tokenData.uuid
     });
     await cockDB.query(query, values);
 
-    return res.status(StatusCodes.ACCEPTED).json({msg: 'Profile updated', uuid: res.locals.tokenData.admin})
+    return res.status(StatusCodes.ACCEPTED).json({msg: 'Profile updated', uuid: res.locals.tokenData.uuid})
   } catch (err) {
     res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
   }

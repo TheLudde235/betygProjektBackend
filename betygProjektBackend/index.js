@@ -70,7 +70,7 @@ app.get('/owner/:uuid', getAdmin);
 
 // Workers
 app.put('/worker', workerAuth, updateWorker);
-app.post(`/worker`, registerWorker);
+app.post('/worker', registerWorker);
 app.get('/workerlogin/:email', loginWorker);
 app.get('/worker/:uuid', getWorker);
 

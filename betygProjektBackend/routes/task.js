@@ -14,7 +14,7 @@ export const createTask = async (req, res) => {
   const adminuuid = res.locals.tokenData.admin;
 
   try {
-    await cockDB.query('insert into tasks (title, description, estateuuid, adminuuid) values($1, $2, $3, $4)', [title, description, estateuuid, adminuuid]);
+    await cockDB.query('insert into tasks (title, description, estateuuid, taskmaster) values($1, $2, $3, $4)', [title, description, estateuuid, adminuuid]);
     return res.status(StatusCodes.CREATED).json({msg: 'Created task succesfully'});
   } catch (err) {
     return res.status(StatusCodes.BAD_REQUEST).json({msg: err});
@@ -54,7 +54,7 @@ export const updateTask = async (req, res) => {
 
 export const deleteTask = async (req, res) => {
   try {
-    await cockDB.query('delete from tasks where adminuuid=$1 and taskuuidv1=$2', [res.locals.tokenData.admin, req.params.taskuuid]);
+    await cockDB.query('delete from tasks where taskuuidv1=$1 and estateuuid in (select estateuuid from estates where adminuuid=$2)', [req.params.taskuuid, res.locals.uuid]);
     res.status(StatusCodes.ACCEPTED).json({msg: 'Task deleted'});
   } catch (err) {
     res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});

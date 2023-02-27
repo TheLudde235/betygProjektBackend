@@ -78,8 +78,4 @@ export const ITask = Joi.object({
   
     description: Joi.string()
       .required(),
-    
-    estateuuid: Joi.string()
-      .uuid({version: 'uuidv4'})
-      .required()
 });

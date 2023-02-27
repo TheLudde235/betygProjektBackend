@@ -78,14 +78,19 @@ export async function estateAuth(req, res, next) {
   next();
 };
 
-export function taskAuth(req, res, next) {
+export async function taskAuth(req, res, next) {
   const token = res.locals.tokenData;
   try {
     let matches;
     if (token.admin) {
-      matches = (await cockDB.query('select adminuuid from tasks where taskuuid=$1 and adminuuid=$2', [req.params.taskuuid, token.admin])).rows;
+      matches = (await cockDB.query('select taskmaster from tasks where estateuuid in (select estateuuid from estates where adminuuid=$1)', [token.uuid])).rows;
     } else {
-      matches = (await cockDB.query('select ')) 
+      matches = (await cockDB.query('select taskmaster from tasks where estateuuid in (select estateuuid from estate_worker_relations where workeruuid=$1)', [token.uuid])).rows; 
     }
+    if (matches.length <= 0) {
+      throw Error('You are not authorized to view this task')
+    }
+  } catch (err) {
+    res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
   }
 }
