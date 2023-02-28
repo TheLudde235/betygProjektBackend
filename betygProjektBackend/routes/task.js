@@ -41,9 +41,9 @@ export const getTasksFromEstate = async (req, res) => {
 
 export const updateTask = async (req, res) => {
   try {
-    const {query, values} = getUpdateQuery(['title', 'description', 'completed'], 'tasks', req.body, {
+    const {query, values} = getUpdateQuery(['title', 'description', 'completed', 'taskmaster'], 'tasks', req.body, {
       'adminuuid': res.locals.tokenData.admin,
-      'taskuuidv1': req.params.uuid
+      'taskuuid': req.params.uuid
     });
     await cockDB.query(query, values);
     res.status(StatusCodes.OK).json({msg: 'Update succesfull'});

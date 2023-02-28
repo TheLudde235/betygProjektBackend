@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "56d3b932-e7fe-4a61-934a-647c103a7492",
+		"_postman_id": "a40c64e9-c10f-468c-bddb-5e564ea516bc",
 		"name": "betygProjekt",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "20838280"
@@ -12,6 +12,50 @@
 				{
 					"name": "tasks",
 					"item": [
+						{
+							"name": "master",
+							"item": []
+						},
+						{
+							"name": "add taskmaster",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{terrytoken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"workeruuid\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}/taskmaster/2ae60ded-5abb-45bd-a47e-eb5854101112",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"taskmaster",
+										"2ae60ded-5abb-45bd-a47e-eb5854101112"
+									]
+								}
+							},
+							"response": []
+						},
 						{
 							"name": "add task",
 							"request": {
@@ -69,16 +113,26 @@
 						{
 							"name": "get tasks from estate",
 							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{terrytoken}}",
+											"type": "string"
+										}
+									]
+								},
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{host}}/tasks/06c04b53-9183-4641-8b1e-cefd6bc16aaf",
+									"raw": "{{host}}/tasks/2ae60ded-5abb-45bd-a47e-eb5854101112",
 									"host": [
 										"{{host}}"
 									],
 									"path": [
 										"tasks",
-										"06c04b53-9183-4641-8b1e-cefd6bc16aaf"
+										"2ae60ded-5abb-45bd-a47e-eb5854101112"
 									]
 								}
 							},
@@ -195,7 +249,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"city\": \"Borås\",\r\n    \"street\": \"Helvetet plan 11\",\r\n    \"streetnumber\": \"666\"\r\n}",
+							"raw": "{\r\n    \"city\": \"Stockholm\",\r\n    \"street\": \"Normalmstorg\",\r\n    \"streetnumber\": \"40000\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -272,7 +326,17 @@
 				{
 					"name": "add worker",
 					"request": {
-						"method": "GET",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{terrytoken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
 						"header": [],
 						"url": {
 							"raw": "{{host}}/addWorker/2aa168f8-ff19-4d4c-a947-9dbaa4a2a67d",
@@ -562,18 +626,18 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/confirmMail/75be?type=login",
+							"raw": "{{host}}/confirmMail/ecbf?type=acceptinvite",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"confirmMail",
-								"75be"
+								"ecbf"
 							],
 							"query": [
 								{
 									"key": "type",
-									"value": "login"
+									"value": "acceptinvite"
 								}
 							]
 						}
@@ -666,13 +730,13 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/table/",
+							"raw": "{{host}}/table/emailconfirmations",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"table",
-								""
+								"emailconfirmations"
 							]
 						}
 					},
