@@ -1,0 +1,12 @@
+{
+  "page": {
+    "login": {
+      "admin": "Admin Login",
+      "username": "Username",
+      "password": "Password"
+    }
+  },
+  "nav": {
+    "login": "Login"
+  }
+}
