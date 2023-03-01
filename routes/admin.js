@@ -45,7 +45,7 @@ export const login = async (req, res) => {
       throw Error('bad username or password');
     }
     const token = await getAdminToken({username, email: user.email, uuid: user.adminuuid});
-    res.setHeader('token', token);
+    res.cookie('token', token, cookieOptions);
     return res.status(StatusCodes.OK).json({msg: 'logged in', token});
   } catch(err) {
     return res.status(StatusCodes.UNAUTHORIZED).json({msg: 'bad username or password'});

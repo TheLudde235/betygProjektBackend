@@ -33,8 +33,8 @@ app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(bodyParser.json());
 
 app.use(cors({
-  origin: 'http://127.0.0.1:5173',
-  credentials: true
+  origin: 'http://localhost:4200',
+  credentials: 'include'
 }));
 
 app.get('/table', adminAuth, async (req, res) => {
