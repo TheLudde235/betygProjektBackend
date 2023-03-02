@@ -8,7 +8,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 
 import { getEstate, myEstates, registerEstate, updateEstate } from './routes/estate.js';
-import { getAdmin, login, putAdmin, register } from './routes/admin.js';
+import { adminRegistered, getAdmin, login, putAdmin, register } from './routes/admin.js';
 import { getWorker, loginWorker, registerWorker, updateWorker } from './routes/worker.js';
 import { confirmEmail, resendEmail } from './routes/email.js';
 import { updateTask, createTask, getTask, getTasksFromEstate, deleteTask } from './routes/task.js';
@@ -67,6 +67,7 @@ app.put('/owner', adminAuth, putAdmin);
 app.post('/register', register);
 app.post('/login', login);
 app.get('/owner/:uuid', getAdmin);
+app.get('/adminregistered', adminRegistered);
 
 // Workers
 app.put('/worker', workerAuth, updateWorker);

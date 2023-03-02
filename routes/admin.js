@@ -83,3 +83,11 @@ export const putAdmin = async (req, res) => {
     res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
   }
 };
+
+export const adminRegistered = async (req, res) => {
+  try {
+    return res.json({msg: (await cockDB.query('select username from administrators where email=$1 or username=$2', [req.query.email, req.query.username])).rows});
+  } catch (err) {
+    return res.status(StatusCodes.BAD_REQUEST).json({msg: err});
+  }
+}
