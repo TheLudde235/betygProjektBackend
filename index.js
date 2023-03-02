@@ -33,7 +33,7 @@ app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(bodyParser.json());
 
 app.use(cors({
-  origin: 'http://localhost:4200',
+  origin: process.env.HOST,
   credentials: 'include'
 }));
 
