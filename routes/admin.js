@@ -6,6 +6,7 @@ import bcrypt from 'bcryptjs';
 import { cockDB, salt } from '../index.js';
 import { getUpdateQuery } from '../helpers/update.js';
 import { getAdminToken } from '../helpers/tokens.js';
+import { sendMail } from '../services/mailer.js';
 
 export const register = async (req, res) => {
   try {
@@ -19,11 +20,15 @@ export const register = async (req, res) => {
 
   try {
     const uuid = uuidV4();
-    await cockDB.query('insert into administrators (adminuuid, username, email, password) values($1, $2, $3, $4)', [uuid, username.trim(), email, await bcrypt.hash(password, salt)]);  
-    const token = await getAdminToken({username: username.trim(), email, uuid});
-    res.cookie('token', token, cookieOptions);
-    res.status(StatusCodes.CREATED);
-    return res.json({msg: 'Created Succesfully', token});
+    const code = uuidV4().split('-')[1];
+    await cockDB.query('insert into emailconfirmations (type, useruuid, confirmationcode, email, information) values ($1, $2, $3, $4, $5)', ['adminregister', uuid, code, email, JSON.stringify({uuid, username: username.trim(), password, email})]);
+    await sendMail({
+      to: email,
+      subject: 'Taxami Registration',
+      html: `
+        <h1><a href="${process.env.HOST}/adminconfirmation/${code}">Click here!</a></h1>
+        <h3>Or type this in the browser: ${code}</h3>`
+    });
   } catch (err) {
     res.status(StatusCodes.BAD_REQUEST);
     return res.json({msg: err.message});

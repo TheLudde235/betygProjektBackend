@@ -2,13 +2,15 @@ import { cockDB } from "../index.js";
 import { sendMail } from "../services/mailer.js";
 import { StatusCodes } from "http-status-codes";
 import { isEmail } from "../services/validation.js";
-import { getWorkerToken } from "../helpers/tokens.js";
+import { getAdminToken, getWorkerToken } from "../helpers/tokens.js";
 
 export const confirmEmail = async (req, res) => {
   try {
     const user = (await cockDB.query('select * from emailconfirmations where confirmationcode=$1 and type=$2', [req.params.confirmationuuid, req.query.type])).rows[0];
     if (!user) throw Error('code is not correct or already used');
     
+    // await cockDB.query('delete from emailconfirmations where confirmationcode=$1 and type=$2', [user.confirmationcode, req.query.type]);
+
     switch (req.query.type) {
       case 'login':
         return res.status(StatusCodes.ACCEPTED).json({
@@ -20,10 +22,15 @@ export const confirmEmail = async (req, res) => {
         const estateuuid = user.information;
         await cockDB.query('insert into estate_worker_relations(estateuuid, workeruuid) values ($1, $2)', [estateuuid, user.useruuid]);
         return res.status(StatusCodes.ACCEPTED).json({msg: 'Added to ' + estateuuid});
+      case 'adminregister':
+        const {uuid, username, email, password} = JSON.parse(user.information);
+        await cockDB.query('insert into administrators (adminuuid, username, email, password) values($1, $2, $3, $4)', [uuid, username, email, password]);  
+        const token = await getAdminToken({username, email, uuid});
+        res.cookie('token', token, cookieOptions);
+        res.status(StatusCodes.CREATED);
+        return res.json({msg: 'Created Succesfully', token});
+    }
         
-      }
-        
-    await cockDB.query('delete from emailconfirmations where confirmationcode=$1 and type=$2', [user.confirmationcode, req.query.type]);
         
   } catch (err) {
     return res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
@@ -40,7 +47,7 @@ export const resendEmail = async (req, res) => {
         to: worker.email,
         subject: 'Confirm your email',
         html: `
-          <h1><a href="http://${process.env.HOST}/confirmMail/${worker.confirmationuuid}">Click here!</a></h1>
+          <h1><a href="${process.env.HOST}/confirmMail/${worker.confirmationuuid}">Click here!</a></h1>
           <h3>Or type this in the browser: ${worker.confirmationuuid}</h3>`
       });
     }
@@ -53,7 +60,7 @@ export const resendEmail = async (req, res) => {
       to: user.email,
       subject: req.query.type,
       html: `
-        <h1><a href="http://${process.env.HOST}/confirmMail/${user.confirmationcode}?type=${user.type}">Click here!</a></h1>
+        <h1><a href="${process.env.HOST}/confirmMail/${user.confirmationcode}?type=${user.type}">Click here!</a></h1>
         <h3>Or type this in the browser: ${user.confirmationcode}</h3>`
     });
   } catch (err) {

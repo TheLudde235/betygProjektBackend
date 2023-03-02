@@ -37,7 +37,7 @@ export const registerWorker = async (req, res) => {
       to: email,
       subject: 'Confirm your email',
       html: `
-      <h1><a href="http://${process.env.HOST}/confirmMail/${uuid}">Click Here!</a></h1>
+      <h1><a href="${process.env.HOST}/confirmMail/${uuid}">Click Here!</a></h1>
       <h3>Or type this in the browser: ${uuid}</h3>`
     });
   } catch (err) {
@@ -91,7 +91,7 @@ export const loginWorker = async (req, res) => {
       to: worker.email,
       subject: 'Taxami Login',
       html: `
-        <h1><a href="http://${process.env.HOST}/confirmMail/${uuid}">Click here!</a></h1>
+        <h1><a href="${process.env.HOST}/confirmMail/${uuid}">Click here!</a></h1>
         <h3>Or type this in the browser: ${uuid}</h3>`
     });
     res.status(StatusCodes.ACCEPTED).json({msg: 'check email for confirmation'});
