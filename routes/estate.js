@@ -14,9 +14,9 @@ export const registerEstate = async (req, res) => {
   const estateuuid = uuidV4();
   
   try {
-    const {city, street, streetnumber} = req.body;
-    const { adminuuid }  = (await cockDB.query('select adminuuid from administrators where username=$1', [res.locals.tokenData.username])).rows[0];
-    await cockDB.query('insert into estates (estateuuid, adminuuid, city, street, streetnumber) values ($1, $2, $3, $4, $5)', [estateuuid, adminuuid, city, street, streetnumber]);
+    const {city, street, streetnumber, description} = req.body;
+    const uuid  = res.locals.tokenData.uuid;
+    await cockDB.query('insert into estates (estateuuid, adminuuid, city, street, streetnumber, description) values ($1, $2, $3, $4, $5, $6)', [estateuuid, uuid, city, street, streetnumber, description]);
   } catch (err) {
     return res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
   }
@@ -27,7 +27,7 @@ export const registerEstate = async (req, res) => {
 export const myEstates = async (req, res) => {
   const user = res.locals.tokenData;
   try {
-    return res.json((await cockDB.query('select * from estates where adminuuid=$1', [user.admin])).rows);
+    return res.json((await cockDB.query('select * from estates where adminuuid=$1', [user.uuid])).rows);
   } catch (err) {
     res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
   }
@@ -45,9 +45,9 @@ export const getEstate = async (req, res) => {
 
 export const updateEstate = async (req, res) => {
   try {
-    const {query, values} = getUpdateQuery(['city', 'street', 'streetnumber'], 'estates', req.body, {
+    const {query, values} = getUpdateQuery(['city', 'street', 'streetnumber', 'description'], 'estates', req.body, {
       'estateuuid': req.params.uuid,
-      'adminuuid': res.locals.tokenData.admin
+      'adminuuid': res.locals.tokenData.uuid
     });
     await cockDB.query(query, values);
     return res.status(StatusCodes.ACCEPTED).json({msg: 'Updated succesfully'});

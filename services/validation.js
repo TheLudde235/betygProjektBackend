@@ -69,6 +69,8 @@ export const IEstate = Joi.object({
   
   streetnumber: Joi.string()
     .required(),
+  
+  description: Joi.string(),
 });
 
 export const ITask = Joi.object({
@@ -78,4 +80,6 @@ export const ITask = Joi.object({
   
     description: Joi.string()
       .required(),
+    
+  priority: Joi.number()
 });

@@ -58,7 +58,7 @@ app.get('/alreadyRegistered', async (req, res) => {
 
 // Estates
 app.get('/myEstates', adminAuth, myEstates);
-app.post('/registerEstate', adminAuth, registerEstate);
+app.post('/registerestate', adminAuth, registerEstate);
 app.put('/estate/:uuid', adminAuth, updateEstate);
 app.get('/estate/:uuid', getEstate);
 

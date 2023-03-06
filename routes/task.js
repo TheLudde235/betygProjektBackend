@@ -9,8 +9,8 @@ export const createTask = async (req, res) => {
   } catch (err) {
     return res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
   }
-  const { title, description, estateuuid } = req.body;
-
+  const { title, description} = req.body;
+  const estateuuid = req.params.estateuuid;
   const adminuuid = res.locals.tokenData.admin;
 
   try {
