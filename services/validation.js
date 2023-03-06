@@ -71,6 +71,8 @@ export const IEstate = Joi.object({
     .required(),
   
   description: Joi.string(),
+  
+  description: Joi.string(),
 });
 
 export const ITask = Joi.object({
@@ -78,8 +80,14 @@ export const ITask = Joi.object({
     .max(50)
     .required(),
   
-    description: Joi.string()
-      .required(),
-    
+  description: Joi.string()
+    .required(),
+
   priority: Joi.number()
+    .required(),
+  
+  deadline: Joi.date(),
+
+  open: Joi.bool()
+    .required()
 });

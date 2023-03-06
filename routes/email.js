@@ -9,7 +9,7 @@ export const confirmEmail = async (req, res) => {
     const user = (await cockDB.query('select * from emailconfirmations where confirmationcode=$1 and type=$2', [req.params.confirmationuuid, req.query.type])).rows[0];
     if (!user) throw Error('code is not correct or already used');
     
-    // await cockDB.query('delete from emailconfirmations where confirmationcode=$1 and type=$2', [user.confirmationcode, req.query.type]);
+    await cockDB.query('delete from emailconfirmations where confirmationcode=$1 and type=$2', [user.confirmationcode, req.query.type]);
 
     switch (req.query.type) {
       case 'login':
@@ -26,9 +26,7 @@ export const confirmEmail = async (req, res) => {
         const {uuid, username, email, password} = JSON.parse(user.information);
         await cockDB.query('insert into administrators (adminuuid, username, email, password) values($1, $2, $3, $4)', [uuid, username, email, password]);  
         const token = await getAdminToken({username, email, uuid});
-        res.cookie('token', token, cookieOptions);
-        res.status(StatusCodes.CREATED);
-        return res.json({msg: 'Created Succesfully', token});
+        return res.status(StatusCodes.CREATED).json({msg: 'Created Succesfully', token});
     }
         
         

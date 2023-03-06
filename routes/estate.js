@@ -28,6 +28,7 @@ export const myEstates = async (req, res) => {
   const user = res.locals.tokenData;
   try {
     return res.json((await cockDB.query('select * from estates where adminuuid=$1', [user.uuid])).rows);
+    return res.json((await cockDB.query('select * from estates where adminuuid=$1', [user.uuid])).rows);
   } catch (err) {
     res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
   }

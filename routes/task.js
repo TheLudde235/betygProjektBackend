@@ -9,15 +9,16 @@ export const createTask = async (req, res) => {
   } catch (err) {
     return res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
   }
-  const { title, description} = req.body;
-  const estateuuid = req.params.estateuuid;
-  const adminuuid = res.locals.tokenData.admin;
+  const { title, description, deadline, priority, open } = req.body;
+  const {estateuuid} = req.params;
+
+  const adminuuid = res.locals.tokenData.uuid;
 
   try {
-    await cockDB.query('insert into tasks (title, description, estateuuid, taskmaster) values($1, $2, $3, $4)', [title, description, estateuuid, adminuuid]);
+    await cockDB.query('insert into tasks (title, description, estateuuid, taskmaster, deadline, priority, open) values($1, $2, $3, $4, $5, $6, $7)', [title, description, estateuuid, adminuuid, deadline == 0 ? null : deadline, priority, open]);
     return res.status(StatusCodes.CREATED).json({msg: 'Created task succesfully'});
   } catch (err) {
-    return res.status(StatusCodes.BAD_REQUEST).json({msg: err});
+    return res.status(StatusCodes.BAD_REQUEST).json({msg: err.message, err});
   }
 };
 

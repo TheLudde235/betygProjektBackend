@@ -21,16 +21,31 @@ export const register = async (req, res) => {
   try {
     const uuid = uuidV4();
     const code = uuidV4().split('-')[1];
-    await cockDB.query('insert into emailconfirmations (type, useruuid, confirmationcode, email, information) values ($1, $2, $3, $4, $5)', ['adminregister', uuid, code, email, JSON.stringify({uuid, username: username.trim(), password, email})]);
+    const alreadyExists = (await cockDB.query('select username, email from administrators where username=$1 or email=$2', [username, email]));
+    console.log(alreadyExists)
+    if (alreadyExists.length > 0) {
+      switch (true) {
+        case alreadyExists.length > 1:
+          return res.status(StatusCodes.BAD_REQUEST).json({msg: 'server.error.email_and_username_occupied'});
+        case alreadyExists[0].username == username:
+          return res.status(StatusCodes.BAD_REQUEST).json({msg: 'server.error.username_occupied'});
+        case alreadyExists[0].email == email:
+          return res.status(StatusCodes.BAD_REQUEST).json({msg: 'server.error.email_occupied'});
+      }
+    }
+    await cockDB.query('insert into emailconfirmations (type, useruuid, confirmationcode, email, information) values ($1, $2, $3, $4, $5)', ['adminregister', uuid, code, email, JSON.stringify({uuid, username: username.trim(), password: await bcrypt.hash(password, salt), email})]);
     await sendMail({
       to: email,
       subject: 'Taxami Registration',
       html: `
-        <h1><a href="${process.env.HOST}/adminconfirmation/${code}">Click here!</a></h1>
+        <h1><a href="${process.env.HOST}/confirmCode/${code}?type=adminregister">Click here!</a></h1>
         <h3>Or type this in the browser: ${code}</h3>`
     });
+    return res.status(StatusCodes.ACCEPTED).json({msg: 'server.message.check_email'})
   } catch (err) {
     res.status(StatusCodes.BAD_REQUEST);
+    console.log(err);
+    
     return res.json({msg: err.message});
   }
 };
@@ -47,13 +62,12 @@ export const login = async (req, res) => {
   try {
     const user = (await cockDB.query('select password, adminuuid, email from administrators where username=$1', [username])).rows[0];
     if (!await bcrypt.compare(password, user.password)) {
-      throw Error('bad username or password');
+      throw Error('server.error.wrong_username_or_password');
     }
     const token = await getAdminToken({username, email: user.email, uuid: user.adminuuid});
-    res.cookie('token', token, cookieOptions);
-    return res.status(StatusCodes.OK).json({msg: 'logged in', token});
+    return res.status(StatusCodes.OK).json({msg: 'server.message.logged_in', token});
   } catch(err) {
-    return res.status(StatusCodes.UNAUTHORIZED).json({msg: 'bad username or password'});
+    return res.status(StatusCodes.UNAUTHORIZED).json({msg: 'server.error.wrong_username_or_password'});
   }
 };
 
@@ -62,7 +76,7 @@ export const getAdmin = async (req, res) => {
     const admin = (await cockDB.query('select username, email, adminuuid from administrators where adminuuid=$1', [req.params.uuid])).rows[0];
     res.status(StatusCodes.ACCEPTED).json({admin});
   } catch (err) {
-    res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
+    res.status(StatusCodes.BAD_REQUEST).json({msg: 'server.error.cannot_get_admin', err: err.message});
   }
 };
 
@@ -72,10 +86,10 @@ export const putAdmin = async (req, res) => {
     const username = req.body.username ? req.body.username.trim() : false;
 
     if (email && !isEmail(email)) {
-      throw Error('Email is not valid');
+      throw Error('server.error.email_invalid');
     }
     if (username && !isAlphaNumberic(username)) {
-      throw Error('Username is not alphanumeric');
+      throw Error('server.error.username_not_alphanumeric');
     }
     
     const {query, values} = getUpdateQuery(['email', 'username'], 'administrators', req.body, {
@@ -83,16 +97,21 @@ export const putAdmin = async (req, res) => {
     });
     await cockDB.query(query, values);
 
-    return res.status(StatusCodes.ACCEPTED).json({msg: 'Profile updated', uuid: res.locals.tokenData.uuid})
+    return res.status(StatusCodes.ACCEPTED).json({msg: 'server.message.updated_profile', uuid: res.locals.tokenData.uuid})
   } catch (err) {
-    res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
+    res.status(StatusCodes.BAD_REQUEST).json({msg: 'server.error.cannot_update_admin', err: err.message});
   }
 };
 
 export const adminRegistered = async (req, res) => {
   try {
-    return res.json({msg: (await cockDB.query('select username from administrators where email=$1 or username=$2', [req.query.email, req.query.username])).rows});
+    const queries = (await Promise.all([
+      cockDB.query('select username from administrators where email=$1 or username=$2', [req.query.email, req.query.username]),
+      cockDB.query('select email from emailconfirmations where email=$1', [req.query.email])
+    ]));
+    const registered = queries[0].rowCount > 0 || queries[1].rowCount > 0;
+    return res.json({msg: registered});
   } catch (err) {
-    return res.status(StatusCodes.BAD_REQUEST).json({msg: err});
+    return res.status(StatusCodes.BAD_REQUEST).json({msg: 'server.error.internal_server_error', err: err.message});
   }
 }
