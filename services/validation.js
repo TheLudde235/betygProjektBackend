@@ -70,9 +70,8 @@ export const IEstate = Joi.object({
   streetnumber: Joi.string()
     .required(),
   
-  description: Joi.string(),
+  description: Joi.string().allow(''),
   
-  description: Joi.string(),
 });
 
 export const ITask = Joi.object({

@@ -55,7 +55,8 @@ export const updateTask = async (req, res) => {
 
 export const deleteTask = async (req, res) => {
   try {
-    await cockDB.query('delete from tasks where taskuuidv1=$1 and estateuuid in (select estateuuid from estates where adminuuid=$2)', [req.params.taskuuid, res.locals.uuid]);
+    await cockDB.query('delete from comments where taskuuid=$1', [req.params.taskuuid]);
+    await cockDB.query('delete from tasks where taskuuid=$1 and estateuuid in (select estateuuid from estates where adminuuid=$2)', [req.params.taskuuid, res.locals.uuid]);
     res.status(StatusCodes.ACCEPTED).json({msg: 'Task deleted'});
   } catch (err) {
     res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});

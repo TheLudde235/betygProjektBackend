@@ -36,9 +36,11 @@ export const myEstates = async (req, res) => {
 
 export const getEstate = async (req, res) => {
   try {
-    const estate = (await cockDB.query('select * from estates where estateuuid=$1', [req.params.uuid])).rows[0];
-    if (!estate) throw Error(`estate with uuid ${req.params.uuid} not found`);
-    res.status(StatusCodes.OK).json({ estate });
+    const estate = (await cockDB.query('select * from estates where estateuuid=$1', [req.params.estateuuid])).rows[0];
+    const tasks = (await cockDB.query('select * from tasks where estateuuid=$1', [req.params.estateuuid])).rows;
+    const workers = (await cockDB.query('select * from workers where workeruuid in (select workeruuid from estate_worker_relations where estateuuid=$1)', [req.params.estateuuid])).rows;
+    if (!estate) throw Error(`estate with uuid ${req.params.estateuuid} not found`);
+    res.status(StatusCodes.OK).json({ estate, tasks, workers });
   } catch (err) {
     res.status(StatusCodes.NOT_FOUND).json({msg: err.message});
   }
@@ -47,7 +49,7 @@ export const getEstate = async (req, res) => {
 export const updateEstate = async (req, res) => {
   try {
     const {query, values} = getUpdateQuery(['city', 'street', 'streetnumber', 'description'], 'estates', req.body, {
-      'estateuuid': req.params.uuid,
+      'estateuuid': req.params.estateuuid,
       'adminuuid': res.locals.tokenData.uuid
     });
     await cockDB.query(query, values);
@@ -56,3 +58,14 @@ export const updateEstate = async (req, res) => {
     res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
   }
 };
+
+export const deleteEstate = async (req, res) => {
+  try {
+    await cockDB.query('delete from comments where taskuuid in (select taskuuid from tasks where estateuuid = $1)', [req.params.estateuuid]);
+    await cockDB.query('delete from tasks where estateuuid=$1', [req.params.estateuuid]);
+    await cockDB.query('delete from estates where estateuuid=$1', [req.params.estateuuid]);
+    return res.status(StatusCodes.ACCEPTED).json({msg: 'server.message.delete_estate'});
+  } catch(err) {
+    res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
+  }
+}

@@ -7,7 +7,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 
-import { getEstate, myEstates, registerEstate, updateEstate } from './routes/estate.js';
+import { deleteEstate, getEstate, myEstates, registerEstate, updateEstate } from './routes/estate.js';
 import { adminRegistered, getAdmin, login, putAdmin, register } from './routes/admin.js';
 import { getWorker, loginWorker, registerWorker, updateWorker } from './routes/worker.js';
 import { confirmEmail, resendEmail } from './routes/email.js';
@@ -59,8 +59,9 @@ app.get('/alreadyRegistered', async (req, res) => {
 // Estates
 app.get('/myEstates', adminAuth, myEstates);
 app.post('/registerestate', adminAuth, registerEstate);
-app.put('/estate/:uuid', adminAuth, updateEstate);
-app.get('/estate/:uuid', getEstate);
+app.put('/estate/:estateuuid', adminAuth, estateAuth, updateEstate);
+app.get('/estate/:estateuuid',userAuth, estateAuth, getEstate);
+app.delete('/estate/:estateuuid', adminAuth, estateAuth, deleteEstate);
 
 // Admins
 app.put('/owner', adminAuth, putAdmin);
