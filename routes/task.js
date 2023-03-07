@@ -42,7 +42,7 @@ export const getTasksFromEstate = async (req, res) => {
 
 export const updateTask = async (req, res) => {
   try {
-    const {query, values} = getUpdateQuery(['title', 'description', 'completed', 'taskmaster'], 'tasks', req.body, {
+    const {query, values} = getUpdateQuery(['title', 'description', 'completed', 'taskmaster', 'deadline'], 'tasks', req.body, {
       'taskuuid': req.params.taskuuid
     });
     await cockDB.query(query, values);
@@ -54,8 +54,6 @@ export const updateTask = async (req, res) => {
 
 export const deleteTask = async (req, res) => {
   try {
-    await cockDB.query('delete from comments where taskuuid=$1', [req.params.taskuuid]);
-    await cockDB.query('delete from tasks where taskuuid=$1 and estateuuid in (select estateuuid from estates where adminuuid=$2)', [req.params.taskuuid, res.locals.uuid]);
     res.status(StatusCodes.ACCEPTED).json({msg: 'Task deleted'});
   } catch (err) {
     res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});

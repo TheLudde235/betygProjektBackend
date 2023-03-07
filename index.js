@@ -9,7 +9,7 @@ import cors from 'cors';
 
 import { deleteEstate, getEstate, myEstates, registerEstate, updateEstate } from './routes/estate.js';
 import { adminRegistered, getAdmin, login, putAdmin, register } from './routes/admin.js';
-import { getWorker, loginWorker, registerWorker, updateWorker } from './routes/worker.js';
+import { getWorker, loginWorker, registerWorker, updateWorker, workerRegistered } from './routes/worker.js';
 import { confirmEmail, resendEmail } from './routes/email.js';
 import { updateTask, createTask, getTask, getTasksFromEstate, deleteTask } from './routes/task.js';
 import { createComment, deleteComment, getComments } from './routes/comment.js';
@@ -75,6 +75,7 @@ app.put('/worker', workerAuth, updateWorker);
 app.post('/worker', registerWorker);
 app.get('/workerlogin/:email', loginWorker);
 app.get('/worker/:uuid', getWorker);
+app.get('/workerregistered', workerRegistered);
 
   // estate relations
   app.post('/addworker/:estateuuid', adminAuth, estateAuth, addWorker);

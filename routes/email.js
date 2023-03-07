@@ -6,6 +6,17 @@ import { getAdminToken, getWorkerToken } from "../helpers/tokens.js";
 
 export const confirmEmail = async (req, res) => {
   try {
+    if (!req.query.type) {
+      const tempworker = (await cockDB.query('select * from tempworkers where confirmationuuid=$1', [req.params.confirmationuuid])).rows[0];
+      if (!tempworker) throw Error('code is not correct or already used');
+      await cockDB.query('insert into workers(workeruuid, email, firstname, lastname, phone) values($1, $2, $3, $4, $5)', [tempworker.workeruuid, tempworker.email, tempworker.firstname, tempworker.lastname, tempworker.phone]);
+      await cockDB.query('delete from tempworkers where confirmationuuid=$1', [req.params.confirmationuuid]);
+      return res.status(StatusCodes.CREATED).json({
+        msg: 'Sucessfully registered',
+        uuid: tempworker.workeruuid,
+        token: await getWorkerToken({tempworker})
+      });
+    }
     const user = (await cockDB.query('select * from emailconfirmations where confirmationcode=$1 and type=$2', [req.params.confirmationuuid, req.query.type])).rows[0];
     if (!user) throw Error('code is not correct or already used');
     
@@ -66,17 +77,3 @@ export const resendEmail = async (req, res) => {
   }
   return res.status(StatusCodes.OK).json({msg: 'email sent'})
 };
-
-
-
-async function wRegister(req, res) {
-  const tempworker = (await cockDB.query('select * from tempworkers where confirmationuuid=$1', [req.params.confirmationuuid])).rows[0];
-  if (!tempworker) throw Error('code is not correct or already used');
-  await cockDB.query('insert into workers(workeruuid, email, firstname, lastname, phone, skills, image) values($1, $2, $3, $4, $5, $6, $7)', [tempworker.workeruuid, tempworker.email, tempworker.firstname, tempworker.lastname, tempworker.phone, tempworker.skills, tempworker.image]);
-  await cockDB.query('delete from tempworkers where confirmationuuid=$1', [req.params.confirmationuuid]);
-  return res.status(StatusCodes.CREATED).json({
-    msg: 'Sucessfully registered',
-    uuid: tempworker.workeruuid,
-    token: await getWorkerToken({tempworker})
-  });
-}

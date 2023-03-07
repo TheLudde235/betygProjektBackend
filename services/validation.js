@@ -45,13 +45,6 @@ export const IRegisterWorker = Joi.object({
     .email()
     .required(),
 
-  skills: Joi.string()
-    .allow(null, ''),
-  
-  image: Joi.string()
-    .allow(null, '')
-    .uri(),
-
   phone: Joi.string()
     .regex(/^(?:\+?(\d{1,3}))?[-\s. (]*(\d{3})[-. )]*(\d{3})[-. ]*(\d{4}|(\d{2}\s\d{2}))(?: *x(\d+))?$/)
     .message('phone must be a valid phonenumber')

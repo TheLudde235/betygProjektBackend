@@ -32,7 +32,7 @@ export const registerWorker = async (req, res) => {
       }
     }
 
-    await cockDB.query('insert into tempworkers(email, firstname, lastname, phone, skills, image, confirmationuuid) values ($1, $2, $3, $4, $5, $6, $7)', [email, firstname, lastname, phone, skills, image, uuid]);
+    await cockDB.query('insert into tempworkers(email, firstname, lastname, phone, confirmationuuid) values ($1, $2, $3, $4, $5)', [email, firstname, lastname, phone, uuid]);
     await sendMail({
       to: email,
       subject: 'Confirm your email',
@@ -99,3 +99,15 @@ export const loginWorker = async (req, res) => {
     return res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
   }
 };
+
+export const workerRegistered = async (req, res) => {
+  try {
+    const queries = (await Promise.all([
+      cockDB.query('select email, phone from workers where email=$1 or phone=$2', [req.query.email, req.query.username])
+    ]));
+
+    return res.json({msg: queries.rowCount <= 0});
+  } catch (err) {
+    return res.status(StatusCodes.BAD_REQUEST).json({msg: 'server.error.internal_server_error', err: err.message});
+  }
+}
