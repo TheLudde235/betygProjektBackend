@@ -1,6 +1,6 @@
 import Database from './services/database.js';
 import { StatusCodes } from 'http-status-codes';
-import { adminAuth, estateAuth, userAuth, workerAuth } from './middleware/auth.js';
+import { adminAuth, estateAuth, taskAuth, userAuth, watchEstateAuth, workerAuth } from './middleware/auth.js';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import express from 'express';
@@ -9,11 +9,11 @@ import cors from 'cors';
 
 import { deleteEstate, getEstate, myEstates, registerEstate, updateEstate } from './routes/estate.js';
 import { adminRegistered, getAdmin, login, putAdmin, register } from './routes/admin.js';
-import { getWorker, loginWorker, registerWorker, updateWorker, workerRegistered } from './routes/worker.js';
+import { getWorker, getWorkers, loginWorker, registerWorker, updateWorker, workerRegistered } from './routes/worker.js';
 import { confirmEmail, resendEmail } from './routes/email.js';
-import { updateTask, createTask, getTask, getTasksFromEstate, deleteTask } from './routes/task.js';
+import { updateTask, createTask, getTask, getTasksFromEstate, deleteTask, takeTask } from './routes/task.js';
 import { createComment, deleteComment, getComments } from './routes/comment.js';
-import { addWorker, removeWorker } from './routes/workerEstateRelation.js';
+import { addWorker, getInvites, getWorkersFromEstate, removeWorker } from './routes/workerEstateRelation.js';
 
 dotenv.config();
 
@@ -57,10 +57,10 @@ app.get('/alreadyRegistered', async (req, res) => {
 });
 
 // Estates
-app.get('/myEstates', adminAuth, myEstates);
+app.get('/myEstates', userAuth, myEstates);
 app.post('/registerestate', adminAuth, registerEstate);
 app.put('/estate/:estateuuid', adminAuth, estateAuth, updateEstate);
-app.get('/estate/:estateuuid',userAuth, estateAuth, getEstate);
+app.get('/estate/:estateuuid', userAuth, watchEstateAuth, getEstate);
 app.delete('/estate/:estateuuid', adminAuth, estateAuth, deleteEstate);
 
 // Admins
@@ -75,24 +75,28 @@ app.put('/worker', workerAuth, updateWorker);
 app.post('/worker', registerWorker);
 app.get('/workerlogin/:email', loginWorker);
 app.get('/worker/:uuid', getWorker);
+app.get('/workers', adminAuth, getWorkers);
 app.get('/workerregistered', workerRegistered);
 
-  // estate relations
-  app.post('/addworker/:estateuuid', adminAuth, estateAuth, addWorker);
-  app.delete('/removeworker/:estateuuid', userAuth, estateAuth, removeWorker);
+// estate relations
+app.post('/addworker/:estateuuid', adminAuth, estateAuth, addWorker);
+app.delete('/removeworker/:estateuuid', userAuth, estateAuth, removeWorker);
+app.get('/myinvites', workerAuth, getInvites);
+app.get('/workers/:estateuuid', adminAuth, estateAuth, getWorkersFromEstate);
 
 // Emails
 app.get('/confirmMail/:confirmationuuid', confirmEmail);
-app.post('/resendConfirmation/:email', resendEmail);
+app.get('/resendConfirmation/:email', resendEmail);
 
 // Tasks
 app.post('/task/:estateuuid', adminAuth, estateAuth, createTask);
+app.post('/taketask/:taskuuid', workerAuth, takeTask);
 app.get('/tasks/:estateuuid', userAuth, estateAuth, getTasksFromEstate);
-app.put('/task/:taskuuid', adminAuth, updateTask);
+app.put('/task/:taskuuid', userAuth, taskAuth, updateTask);
 app.delete('/task/:taskuuid', adminAuth, deleteTask);
 app.get('/task/:taskuuid', getTask);
 
 // Comments
-app.post('/comment/:uuid', userAuth, createComment);
-app.delete('/comment/:uuid', userAuth, deleteComment);
-app.get('/comments/:taskuuid', userAuth, getComments);
+app.post('/comment/:taskuuid', userAuth, taskAuth, createComment);
+app.delete('/comment/:commentuuid', userAuth, deleteComment);
+app.get('/comments/:taskuuid', userAuth, taskAuth, getComments);

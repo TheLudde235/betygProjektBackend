@@ -14,7 +14,7 @@ export const confirmEmail = async (req, res) => {
       return res.status(StatusCodes.CREATED).json({
         msg: 'Sucessfully registered',
         uuid: tempworker.workeruuid,
-        token: await getWorkerToken({tempworker})
+        token: await getWorkerToken({...tempworker, useruuid: tempworker.workeruuid})
       });
     }
     const user = (await cockDB.query('select * from emailconfirmations where confirmationcode=$1 and type=$2', [req.params.confirmationuuid, req.query.type])).rows[0];

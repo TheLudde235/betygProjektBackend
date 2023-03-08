@@ -27,7 +27,11 @@ export const registerEstate = async (req, res) => {
 export const myEstates = async (req, res) => {
   const user = res.locals.tokenData;
   try {
-    return res.json((await cockDB.query('select * from estates where adminuuid=$1', [user.uuid])).rows);
+    if (user.admin) {
+      return res.json((await cockDB.query('select * from estates where adminuuid=$1', [user.uuid])).rows);
+    } else {
+      return res.json((await cockDB.query('select * from estates where estateuuid in (select estateuuid from estate_worker_relations where workeruuid=$1)', [user.uuid])).rows);
+    }
   } catch (err) {
     res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
   }
@@ -60,6 +64,7 @@ export const updateEstate = async (req, res) => {
 
 export const deleteEstate = async (req, res) => {
   try {
+    await cockDB.query('delete from estate_worker_relations where estateuuid=$1', [req.params.estateuuid]);
     await cockDB.query('delete from comments where taskuuid in (select taskuuid from tasks where estateuuid = $1)', [req.params.estateuuid]);
     await cockDB.query('delete from tasks where estateuuid=$1', [req.params.estateuuid]);
     await cockDB.query('delete from estates where estateuuid=$1', [req.params.estateuuid]);

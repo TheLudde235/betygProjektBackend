@@ -9,12 +9,13 @@ export const createTask = async (req, res) => {
   } catch (err) {
     return res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
   }
-  const { title, description, priority, deadline, open } = req.body;
+  const { title, description, priority, open } = req.body;
+  const deadline = req.body.deadline != 0 ? req.body.deadline : null;
   const estateuuid = req.params.estateuuid;
   const adminuuid = res.locals.tokenData.uuid;
 
   try {
-    await cockDB.query('insert into tasks (title, description, estateuuid, taskmaster, priority, deadline, open) values($1, $2, $3, $4, $5, $6, $7)', [title, description, estateuuid, adminuuid, priority, deadline, open]);
+    await cockDB.query('insert into tasks (title, description, estateuuid, priority, deadline, open) values($1, $2, $3, $4, $5, $6)', [title, description, estateuuid, priority, deadline, open]);
     return res.status(StatusCodes.CREATED).json({msg: 'Created task succesfully'});
   } catch (err) {
     return res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
@@ -41,15 +42,36 @@ export const getTasksFromEstate = async (req, res) => {
 
 export const updateTask = async (req, res) => {
   try {
-    const {query, values} = getUpdateQuery(['title', 'description', 'completed', 'taskmaster', 'deadline', 'priority'], 'tasks', req.body, {
-      'taskuuid': req.params.taskuuid
-    });
-    await cockDB.query(query, values);
+    if (res.locals.tokenData.admin) {
+      const {query, values} = getUpdateQuery(['title', 'description', 'completed', 'taskmaster', 'deadline', 'priority'], 'tasks', req.body, {
+        'taskuuid': req.params.taskuuid
+      });
+      await cockDB.query(query, values);
+    } else {
+      const {query, values} = getUpdateQuery(['title', 'description', 'completed', 'taskmaster', 'deadline', 'priority'], 'tasks', req.body, {
+        'taskuuid': req.params.taskuuid
+      });
+      await cockDB.query(query, values);
+    }
     res.status(StatusCodes.OK).json({msg: 'Update succesfull'});
   } catch (err) {
     res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
   }
 };
+
+export const takeTask = async (req, res) => {
+  try {
+    const matches = (await cockDB.query('select open from tasks where taskuuid=$1 and estateuuid in (select estateuuid from estate_worker_relations where workeruuid=$2)', [req.params.taskuuid, req.body.taskmaster])).rows;
+    if (matches.length < 1) throw Error('server.error.not_authorized');
+    const {query, values} = getUpdateQuery(['taskmaster'], 'tasks', req.body, {
+      'taskuuid': req.params.taskuuid
+    });
+    await cockDB.query(query, values);
+    res.status(StatusCodes.ACCEPTED).json({msg: 'Update succesfull'})
+  } catch (err) {
+    res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
+  }
+}
 
 export const deleteTask = async (req, res) => {
   try {

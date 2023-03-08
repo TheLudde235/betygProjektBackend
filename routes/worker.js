@@ -4,6 +4,7 @@ import {v4 as uuidV4} from 'uuid';
 import { cockDB } from "../index.js";
 import { sendMail } from "../services/mailer.js";
 import { getUpdateQuery } from "../helpers/update.js";
+import { getError } from "../services/betterErrors.js";
 
 export const registerWorker = async (req, res) => {
   try {
@@ -71,6 +72,15 @@ export const updateWorker = async (req, res) => {
   }
 }
 
+export const getWorkers = async (req, res) => {
+  try {
+    const workers = (await cockDB.query('select email, firstname, lastname, workeruuid from workers')).rows;
+    res.status(StatusCodes.OK).json(workers);
+  } catch (err) {
+    res.status(StatusCodes.BAD_REQUEST).json({msg: getError(err.message)});
+  }
+}
+
 export const getWorker = async (req, res) => {
   try {
     const worker = (await cockDB.query('select email, phone, firstname, lastname from workers where workeruuid=$1', [req.params.uuid])).rows[0];
@@ -83,9 +93,17 @@ export const getWorker = async (req, res) => {
 export const loginWorker = async (req, res) => {
   try {
     const worker = (await cockDB.query('select email, workeruuid from workers where email=$1', [req.params.email])).rows[0];
-    if (!worker) throw Error(`${req.params.email} does not exits in database`);
+    if (!worker) throw Error('dialog.error.no_email_found');
 
     const uuid = uuidV4().split('-')[1];
+    const preExistingTypes = (await cockDB.query('select type from emailconfirmations where email=$1', [worker.email])).rows;
+    
+    preExistingTypes.forEach(type => {
+      if (type == 'login'){
+        res.status(StatusCodes.BAD_REQUEST).json({title: 'server.error.duplicate_confirmationkey_title', content:'server.error.duplicate_confirmationkey_content'});
+      }
+    })
+
     await cockDB.query('insert into emailconfirmations(confirmationcode, type, useruuid, email) values($1, $2, $3, $4)', [uuid, 'login', worker.workeruuid, worker.email]);
     await sendMail({
       to: worker.email,
@@ -96,7 +114,7 @@ export const loginWorker = async (req, res) => {
     });
     res.status(StatusCodes.ACCEPTED).json({msg: 'check email for confirmation'});
   } catch (err) {
-    return res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
+    return res.status(StatusCodes.BAD_REQUEST).json({msg: getError(err.message)});
   }
 };
 
