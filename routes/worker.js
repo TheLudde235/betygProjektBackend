@@ -102,11 +102,9 @@ export const loginWorker = async (req, res) => {
 
 export const workerRegistered = async (req, res) => {
   try {
-    const queries = (await Promise.all([
-      cockDB.query('select email, phone from workers where email=$1 or phone=$2', [req.query.email, req.query.username])
-    ]));
+    const query = await cockDB.query('select email, phone from workers where email=$1 or phone=$2', [req.query.email, req.query.username])
 
-    return res.json({msg: queries.rowCount <= 0});
+    return res.json({msg: query.rowCount >= 1});
   } catch (err) {
     return res.status(StatusCodes.BAD_REQUEST).json({msg: 'server.error.internal_server_error', err: err.message});
   }
