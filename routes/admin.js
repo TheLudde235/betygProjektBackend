@@ -3,7 +3,7 @@ import { v4 as uuidV4 } from 'uuid';
 import { cookieOptions } from '../helpers/cookie.js';
 import { StatusCodes } from 'http-status-codes';
 import bcrypt from 'bcryptjs';
-import { cockDB, salt } from '../index.js';
+import { dbClient, salt } from '../index.js';
 import { getUpdateQuery } from '../helpers/update.js';
 import { getAdminToken } from '../helpers/tokens.js';
 import { sendMail } from '../services/mailer.js';
@@ -21,7 +21,7 @@ export const register = async (req, res) => {
   try {
     const uuid = uuidV4();
     const code = uuidV4().split('-')[1];
-    const alreadyExists = (await cockDB.query('select username, email from administrators where username=$1 or email=$2', [username, email]));
+    const alreadyExists = (await dbClient.query('select username, email from administrators where username=$1 or email=$2', [username, email]));
     if (alreadyExists.length > 0) {
       switch (true) {
         case alreadyExists.length > 1:
@@ -32,7 +32,7 @@ export const register = async (req, res) => {
           return res.status(StatusCodes.BAD_REQUEST).json({msg: 'server.error.email_occupied'});
       }
     }
-    await cockDB.query('insert into emailconfirmations (type, useruuid, confirmationcode, email, information) values ($1, $2, $3, $4, $5)', ['adminregister', uuid, code, email, JSON.stringify({uuid, username: username.trim(), password: await bcrypt.hash(password, salt), email})]);
+    await dbClient.query('insert into emailconfirmations (type, useruuid, confirmationcode, email, information) values ($1, $2, $3, $4, $5)', ['adminregister', uuid, code, email, JSON.stringify({uuid, username: username.trim(), password: await bcrypt.hash(password, salt), email})]);
     await sendMail({
       to: email,
       subject: 'Taxami Registration',
@@ -57,7 +57,7 @@ export const login = async (req, res) => {
   const {username, password} = req.body;
   
   try {
-    const user = (await cockDB.query('select password, adminuuid, email from administrators where username=$1', [username])).rows[0];
+    const user = (await dbClient.query('select password, adminuuid, email from administrators where username=$1', [username])).rows[0];
     if (!await bcrypt.compare(password, user.password)) {
       throw Error('server.error.wrong_username_or_password');
     }
@@ -70,7 +70,7 @@ export const login = async (req, res) => {
 
 export const getAdmin = async (req, res) => {
   try {
-    const admin = (await cockDB.query('select username, email, adminuuid from administrators where adminuuid=$1', [req.params.uuid])).rows[0];
+    const admin = (await dbClient.query('select username, email, adminuuid from administrators where adminuuid=$1', [req.params.uuid])).rows[0];
     res.status(StatusCodes.ACCEPTED).json({admin});
   } catch (err) {
     res.status(StatusCodes.BAD_REQUEST).json({msg: 'server.error.cannot_get_admin', err: err.message});
@@ -92,7 +92,7 @@ export const putAdmin = async (req, res) => {
     const {query, values} = getUpdateQuery(['email', 'username'], 'administrators', req.body, {
       'adminuuid': res.locals.tokenData.uuid
     });
-    await cockDB.query(query, values);
+    await dbClient.query(query, values);
 
     return res.status(StatusCodes.ACCEPTED).json({msg: 'server.message.updated_profile', uuid: res.locals.tokenData.uuid})
   } catch (err) {
@@ -103,8 +103,8 @@ export const putAdmin = async (req, res) => {
 export const adminRegistered = async (req, res) => {
   try {
     const queries = (await Promise.all([
-      cockDB.query('select username from administrators where email=$1 or username=$2', [req.query.email, req.query.username]),
-      cockDB.query('select email from emailconfirmations where email=$1', [req.query.email])
+      dbClient.query('select username from administrators where email=$1 or username=$2', [req.query.email, req.query.username]),
+      dbClient.query('select email from emailconfirmations where email=$1', [req.query.email])
     ]));
     const registered = queries[0].rowCount > 0 || queries[1].rowCount > 0;
     return res.json({msg: registered});

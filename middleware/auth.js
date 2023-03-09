@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { StatusCodes } from 'http-status-codes';
-import { cockDB } from '../index.js';
+import { dbClient } from '../index.js';
 dotenv.config();
 
 export function adminAuth(req, res, next) {
@@ -62,12 +62,12 @@ export async function estateAuth(req, res, next) {
 
   try {
     if (res.locals.tokenData.admin) {
-      const matches = (await cockDB.query('select adminuuid from estates where adminuuid=$1 and estateuuid=$2', [uuid, req.params.estateuuid])).rows;
+      const matches = (await dbClient.query('select adminuuid from estates where adminuuid=$1 and estateuuid=$2', [uuid, req.params.estateuuid])).rows;
       if (matches.length <= 0) {
         return res.status(StatusCodes.NOT_ACCEPTABLE).json({msg: 'You are not authorized to view information for estate ' + req.params.estateuuid});
       }
     } else {
-      const matches = (await cockDB.query('select workeruuid from estate_worker_relations where workeruuid=$1 and estateuuid=$2', [uuid, req.params.estateuuid])).rows;
+      const matches = (await dbClient.query('select workeruuid from estate_worker_relations where workeruuid=$1 and estateuuid=$2', [uuid, req.params.estateuuid])).rows;
 
       if (matches.length <= 0) {
         return res.status(StatusCodes.NOT_ACCEPTABLE).json({msg: 'You are not authorized to view information for estate ' + req.params.estateuuid});
@@ -84,13 +84,13 @@ export async function watchEstateAuth(req, res, next) {
 
   try {
     if (res.locals.tokenData.admin) {
-      const matches = (await cockDB.query('select adminuuid from estates where adminuuid=$1 and estateuuid=$2', [uuid, req.params.estateuuid])).rows;
+      const matches = (await dbClient.query('select adminuuid from estates where adminuuid=$1 and estateuuid=$2', [uuid, req.params.estateuuid])).rows;
       if (matches.length <= 0) {
         return res.status(StatusCodes.NOT_ACCEPTABLE).json({msg: 'You are not authorized to view information for estate ' + req.params.estateuuid});
       }
     } else {
-      const matches = (await cockDB.query('select workeruuid from estate_worker_relations where workeruuid=$1 and estateuuid=$2', [uuid, req.params.estateuuid])).rows;
-      const confirmations = (await cockDB.query('select useruuid from emailconfirmations where useruuid=$1 and information=$2', [uuid, req.params.estateuuid])).rows;
+      const matches = (await dbClient.query('select workeruuid from estate_worker_relations where workeruuid=$1 and estateuuid=$2', [uuid, req.params.estateuuid])).rows;
+      const confirmations = (await dbClient.query('select useruuid from emailconfirmations where useruuid=$1 and information=$2', [uuid, req.params.estateuuid])).rows;
 
       if (matches.length <= 0 && confirmations.length <= 0) {
         return res.status(StatusCodes.NOT_ACCEPTABLE).json({msg: 'You are not authorized to view information for estate ' + req.params.estateuuid});
@@ -107,9 +107,9 @@ export async function taskAuth(req, res, next) {
   try {
     let matches;
     if (token.admin) {
-      matches = (await cockDB.query('select estateuuid from tasks where estateuuid in (select estateuuid from estates where adminuuid=$1)', [token.uuid])).rows;
+      matches = (await dbClient.query('select estateuuid from tasks where estateuuid in (select estateuuid from estates where adminuuid=$1)', [token.uuid])).rows;
     } else {
-      matches = (await cockDB.query('select taskmaster from tasks where taskmaster=$1', [token.uuid])).rows; 
+      matches = (await dbClient.query('select taskmaster from tasks where taskmaster=$1', [token.uuid])).rows; 
     }
     if (matches.length <= 0) {
       throw Error('You are not authorized to view this task');

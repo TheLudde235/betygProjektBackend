@@ -1,4 +1,4 @@
-import { cockDB } from "../index.js";
+import { dbClient } from "../index.js";
 import { sendMail } from "../services/mailer.js";
 import { StatusCodes } from "http-status-codes";
 import { isEmail } from "../services/validation.js";
@@ -7,20 +7,20 @@ import { getAdminToken, getWorkerToken } from "../helpers/tokens.js";
 export const confirmEmail = async (req, res) => {
   try {
     if (!req.query.type) {
-      const tempworker = (await cockDB.query('select * from tempworkers where confirmationuuid=$1', [req.params.confirmationuuid])).rows[0];
+      const tempworker = (await dbClient.query('select * from tempworkers where confirmationuuid=$1', [req.params.confirmationuuid])).rows[0];
       if (!tempworker) throw Error('code is not correct or already used');
-      await cockDB.query('insert into workers(workeruuid, email, firstname, lastname, phone) values($1, $2, $3, $4, $5)', [tempworker.workeruuid, tempworker.email, tempworker.firstname, tempworker.lastname, tempworker.phone]);
-      await cockDB.query('delete from tempworkers where confirmationuuid=$1', [req.params.confirmationuuid]);
+      await dbClient.query('insert into workers(workeruuid, email, firstname, lastname, phone) values($1, $2, $3, $4, $5)', [tempworker.workeruuid, tempworker.email, tempworker.firstname, tempworker.lastname, tempworker.phone]);
+      await dbClient.query('delete from tempworkers where confirmationuuid=$1', [req.params.confirmationuuid]);
       return res.status(StatusCodes.CREATED).json({
         msg: 'Sucessfully registered',
         uuid: tempworker.workeruuid,
         token: await getWorkerToken({...tempworker, useruuid: tempworker.workeruuid})
       });
     }
-    const user = (await cockDB.query('select * from emailconfirmations where confirmationcode=$1 and type=$2', [req.params.confirmationuuid, req.query.type])).rows[0];
+    const user = (await dbClient.query('select * from emailconfirmations where confirmationcode=$1 and type=$2', [req.params.confirmationuuid, req.query.type])).rows[0];
     if (!user) throw Error('code is not correct or already used');
     
-    await cockDB.query('delete from emailconfirmations where confirmationcode=$1 and type=$2', [user.confirmationcode, req.query.type]);
+    await dbClient.query('delete from emailconfirmations where confirmationcode=$1 and type=$2', [user.confirmationcode, req.query.type]);
 
     switch (req.query.type) {
       case 'login':
@@ -31,11 +31,11 @@ export const confirmEmail = async (req, res) => {
         });
       case 'acceptinvite':
         const estateuuid = user.information;
-        await cockDB.query('insert into estate_worker_relations(estateuuid, workeruuid) values ($1, $2)', [estateuuid, user.useruuid]);
+        await dbClient.query('insert into estate_worker_relations(estateuuid, workeruuid) values ($1, $2)', [estateuuid, user.useruuid]);
         return res.status(StatusCodes.ACCEPTED).json({msg: 'Added to ' + estateuuid});
       case 'adminregister':
         const {uuid, username, email, password} = JSON.parse(user.information);
-        await cockDB.query('insert into administrators (adminuuid, username, email, password) values($1, $2, $3, $4)', [uuid, username, email, password]);  
+        await dbClient.query('insert into administrators (adminuuid, username, email, password) values($1, $2, $3, $4)', [uuid, username, email, password]);  
         const token = await getAdminToken({username, email, uuid});
         return res.status(StatusCodes.CREATED).json({msg: 'Created Succesfully', token});
     }
@@ -50,7 +50,7 @@ export const resendEmail = async (req, res) => {
   try {
     if (!isEmail(req.params.email)) throw Error('Invalid email');
     if (!req.query.type) {
-      const worker = (await cockDB.query('select * from tempworkers where email=$1', [req.params.email])).rows[0];
+      const worker = (await dbClient.query('select * from tempworkers where email=$1', [req.params.email])).rows[0];
       if (!worker) throw Error('Email could not be found');
       await sendMail({
         to: worker.email,
@@ -60,7 +60,7 @@ export const resendEmail = async (req, res) => {
       });
     }
 
-    const user = (await cockDB.query('select * from emailconfirmations where email=$1 and type=$2', [req.params.email, req.query.type])).rows[0];
+    const user = (await dbClient.query('select * from emailconfirmations where email=$1 and type=$2', [req.params.email, req.query.type])).rows[0];
 
     if (!user) throw Error(`Email doesn't have any pending confirmations`);
 

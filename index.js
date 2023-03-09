@@ -10,7 +10,7 @@ import { deleteEstate, getEstate, myEstates, registerEstate, updateEstate } from
 import { adminRegistered, getAdmin, login, putAdmin, register } from './routes/admin.js';
 import { getWorker, getWorkers, loginWorker, registerWorker, updateWorker, workerRegistered } from './routes/worker.js';
 import { confirmEmail, resendEmail } from './routes/email.js';
-import { updateTask, createTask, getTask, getTasksFromEstate, deleteTask, takeTask } from './routes/task.js';
+import { updateTask, createTask, getTask, getTasksFromEstate, deleteTask, takeTask, getTasks } from './routes/task.js';
 import { createComment, deleteComment, getComments } from './routes/comment.js';
 import { addWorker, getInvites, getWorkersFromEstate, removeWorker } from './routes/workerEstateRelation.js';
 
@@ -20,7 +20,7 @@ const db = new Database();
 const app = express();
 
 export const salt = 10;
-export const cockDB = await db.getClient();
+export const dbClient = await db.getClient();
 
 dotenv.config();
 
@@ -37,7 +37,7 @@ app.use(cors({
 }));
 
 app.get('/alreadyRegistered', async (req, res) => {
-  return res.json({ msg: (await cockDB.query('select * from workers where email=$1 or phone=$2', [req.query.email, req.query.phone])).rowCount > 0 });
+  return res.json({ msg: (await dbClient.query('select * from workers where email=$1 or phone=$2', [req.query.email, req.query.phone])).rowCount > 0 });
 });
 
 // Estates
@@ -79,6 +79,7 @@ app.get('/tasks/:estateuuid', userAuth, estateAuth, getTasksFromEstate);
 app.put('/task/:taskuuid', userAuth, taskAuth, updateTask);
 app.delete('/task/:taskuuid', adminAuth, deleteTask);
 app.get('/task/:taskuuid', getTask);
+app.get('/mytasks', userAuth, getTasks);
 
 // Comments
 app.post('/comment/:taskuuid', userAuth, taskAuth, createComment);

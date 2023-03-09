@@ -1,4 +1,4 @@
-import { cockDB } from "../index.js";
+import { dbClient } from "../index.js";
 import jwt from 'jsonwebtoken';
 
 export const getWorkerToken = async (user) => {
