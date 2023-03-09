@@ -15,7 +15,7 @@ export const registerWorker = async (req, res) => {
   }
 
   const { email, firstname, lastname } = req.body;
-  const phone = req.body.phone.replace(/\+\d{2}/, '0').replaceAll(' ', '');
+  const phone = req.body.phone.replace(/\+\d{2}/, '0').replace(/\s/g, '');
 
   try {
     const uuid = uuidV4().split('-')[1];
@@ -47,7 +47,7 @@ export const registerWorker = async (req, res) => {
 
 export const updateWorker = async (req, res) => {
   try {
-    req.body.phone = req.body.phone ? req.body.phone.replace(/\+\d{2}/, '0').replaceAll(' ', '') : undefined;
+    req.body.phone = req.body.phone ? req.body.phone.replace(/\+\d{2}/, '0').replace(/\s/g, '') : undefined;
     
     if (req.body.email && !isEmail(req.body.email)) {
       throw Error('"email" is not a valid email');
