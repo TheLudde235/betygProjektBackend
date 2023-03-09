@@ -1,5 +1,4 @@
 import Database from './services/database.js';
-import { StatusCodes } from 'http-status-codes';
 import { adminAuth, estateAuth, taskAuth, userAuth, watchEstateAuth, workerAuth } from './middleware/auth.js';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
@@ -37,23 +36,8 @@ app.use(cors({
   credentials: 'include'
 }));
 
-app.get('/table', adminAuth, async (req, res) => {
-  const rows = (await cockDB.query('show tables')).rows;
-  const obj = {};
-  for (const row of rows) {
-    obj[row.table_name] = (await cockDB.query('select * from ' + row.table_name)).rows;
-  }
-  return res.json(obj);
-});
-app.get('/table/:table', adminAuth, async (req, res) => {
-  try {
-    return res.json((await cockDB.query('select * from ' + req.params.table)).rows);
-  } catch (err) {
-    return res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
-  }
-});
 app.get('/alreadyRegistered', async (req, res) => {
-  return res.json({msg: (await cockDB.query('select * from workers where email=$1 or phone=$2', [req.query.email, req.query.phone])).rowCount > 0});
+  return res.json({ msg: (await cockDB.query('select * from workers where email=$1 or phone=$2', [req.query.email, req.query.phone])).rowCount > 0 });
 });
 
 // Estates

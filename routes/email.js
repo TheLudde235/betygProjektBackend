@@ -56,8 +56,7 @@ export const resendEmail = async (req, res) => {
         to: worker.email,
         subject: 'Confirm your email',
         html: `
-          <h1><a href="${process.env.HOST}/confirmMail/${worker.confirmationuuid}">Click here!</a></h1>
-          <h3>Or type this in the browser: ${worker.confirmationuuid}</h3>`
+          <h3>Type this in the browser: ${worker.confirmationuuid}</h3>`
       });
     }
 
@@ -69,8 +68,7 @@ export const resendEmail = async (req, res) => {
       to: user.email,
       subject: req.query.type,
       html: `
-        <h1><a href="${process.env.HOST}/confirmMail/${user.confirmationcode}?type=${user.type}">Click here!</a></h1>
-        <h3>Or type this in the browser: ${user.confirmationcode}</h3>`
+        <h3>Type this in the browser: ${user.confirmationcode}</h3>`
     });
   } catch (err) {
     return res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});

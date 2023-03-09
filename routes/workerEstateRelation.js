@@ -26,7 +26,7 @@ export const addWorker = async (req, res) => {
       to: email,
       subject: `You've been invited by ${res.locals.tokenData.username}`,
       html: ` You've been invited by ${res.locals.tokenData.username} to help at ${street} ${streetnumber}, ${city}<br>
-              Press the <a href="${process.env.HOST}/confirmMail/${uuid}?type=acceptinvite">Link</a> or type the code: ${uuid} in your browser`
+              Accept it in the app or manually accept with the code: ${uuid} `
     });
 
     res.status(StatusCodes.ACCEPTED).json({ msg: 'added succesfully' });

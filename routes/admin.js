@@ -38,8 +38,7 @@ export const register = async (req, res) => {
       to: email,
       subject: 'Taxami Registration',
       html: `
-        <h1><a href="${process.env.HOST}/confirmCode/${code}?type=adminregister">Click here!</a></h1>
-        <h3>Or type this in the browser: ${code}</h3>`
+        <h3>Type this in the browser: ${code}</h3>`
     });
     return res.status(StatusCodes.ACCEPTED).json({msg: 'server.message.check_email'})
   } catch (err) {
