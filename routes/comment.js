@@ -40,12 +40,11 @@ export const getComments = async (req, res) => {
       } else {
         comment.user = (await cockDB.query('select firstname, lastname from workers where workeruuid=$1', [comment.useruuid])).rows[0];
       }
-      comment.task = task;
       return comment;
     }));
 
     comments.sort((a, b) => v1time(a.commentuuid) - v1time(b.commentuuid));
-    return res.status(StatusCodes.ACCEPTED).json({comments});
+    return res.status(StatusCodes.ACCEPTED).json({comments, task});
   } catch (err) {
     return res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
   }
