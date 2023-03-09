@@ -40,7 +40,6 @@ export const registerWorker = async (req, res) => {
       html: `
       <h3>Type this in the browser: ${uuid}</h3>`
     });
-    res.status(StatusCodes.OK).json({msg: 'email sent'});
   } catch (err) {
     return res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
   }
