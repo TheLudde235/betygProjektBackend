@@ -38,7 +38,6 @@ export const addWorker = async (req, res) => {
 export const getInvites = async (req, res) => {
   try {
     const invites = (await cockDB.query('select confirmationcode, information from emailconfirmations where useruuid=$1 and type=$2', [res.locals.tokenData.uuid, 'acceptinvite'])).rows;
-    console.log({invites, uuid: res.locals.tokenData})
     return res.status(StatusCodes.ACCEPTED).json(invites);
   } catch (err) {
     return res.status(StatusCodes.BAD_REQUEST).json({msg: getError(err.message)});

@@ -22,7 +22,6 @@ export const register = async (req, res) => {
     const uuid = uuidV4();
     const code = uuidV4().split('-')[1];
     const alreadyExists = (await cockDB.query('select username, email from administrators where username=$1 or email=$2', [username, email]));
-    console.log(alreadyExists)
     if (alreadyExists.length > 0) {
       switch (true) {
         case alreadyExists.length > 1:
@@ -43,7 +42,6 @@ export const register = async (req, res) => {
     return res.status(StatusCodes.ACCEPTED).json({msg: 'server.message.check_email'})
   } catch (err) {
     res.status(StatusCodes.BAD_REQUEST);
-    console.log(err);
     
     return res.json({msg: err.message});
   }

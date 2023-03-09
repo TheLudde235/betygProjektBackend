@@ -33,7 +33,6 @@ export const getComments = async (req, res) => {
     let comments = (await cockDB.query('select * from comments where taskuuid=$1', [req.params.taskuuid])).rows;
     const task = (await cockDB.query('select * from tasks where taskuuid=$1', [req.params.taskuuid])).rows[0];
 
-    console.log(comments)
     comments = await Promise.all(comments.map(async comment => {
       if (comment.admin) {
         comment.user = (await cockDB.query('select username from administrators where adminuuid=$1', [comment.useruuid])).rows[0];
