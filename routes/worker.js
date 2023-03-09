@@ -16,8 +16,6 @@ export const registerWorker = async (req, res) => {
 
   const { email, firstname, lastname } = req.body;
   const phone = req.body.phone.replace(/\+\d{2}/, '0').replaceAll(' ', '');
-  const skills = req.body.skills ?? '';
-  const image = req.body.image ?? '';
 
   try {
     const uuid = uuidV4().split('-')[1];
@@ -40,12 +38,11 @@ export const registerWorker = async (req, res) => {
       html: `
       <h3>Type this in the browser: ${uuid}</h3>`
     });
+    return res.status(StatusCodes.OK).json({msg: 'Check email to confirm'});
   } catch (err) {
     return res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
   }
 
-  res.status(StatusCodes.OK);
-  return res.json({msg: 'Check email to confirm'});
 };
 
 export const updateWorker = async (req, res) => {
