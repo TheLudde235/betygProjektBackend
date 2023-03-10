@@ -16,3 +16,9 @@ Data is stored at [cockroachlabs](https://www.cockroachlabs.com/)
 - BcryptJS: for encrypting user passwords
 - JWT: Authenticating users when requesting routes that need specific permissions
 - NodeMailer: Sending emails for confirmations and important updates to users
+
+
+## Hosting
+The backend is hosted on [render](https://render.com/) and frontend on [cloudflare pages](https://pages.cloudflare.com/)
+
+The project is live at [this link](https://taxami.pages.dev/
