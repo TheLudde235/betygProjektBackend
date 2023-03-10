@@ -1,4 +1,4 @@
-# Betygprojekt Backend (Grading project, Backend)
+# Grading project, Backend
 
 ### Backend server for Ludvig Lagerströms grading project
 ---
