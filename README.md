@@ -21,4 +21,4 @@ Data is stored at [cockroachlabs](https://www.cockroachlabs.com/)
 ## Hosting
 The backend is hosted on [render](https://render.com/) and frontend on [cloudflare pages](https://pages.cloudflare.com/)
 
-The project is live at [this link](https://taxami.pages.dev/
+The project is live at [this link](https://taxami.pages.dev/)
