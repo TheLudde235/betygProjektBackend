@@ -26,7 +26,7 @@ export const createTask = async (req, res) => {
 
 export const getTask = async (req, res) => {
   try {
-    const task = (await dbClient.query('select * from tasks where taskuuidv1=$1', [req.params.taskuuid])).rows[0];
+    const task = (await dbClient.query('select * from tasks where taskuuid=$1', [req.params.taskuuid])).rows[0];
     return res.status(StatusCodes.OK).json({task});
   } catch (err) {
     return res.status(StatusCodes.BAD_REQUEST).json({msg: err.message});
